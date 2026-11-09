@@ -1,0 +1,1951 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Note</title>
+<meta name="description" content="Personal routine, goals, events and notes.">
+<meta name="theme-color" content="#0b0b0c">
+<meta name="application-name" content="Note">
+<meta name="apple-mobile-web-app-title" content="Note">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#0b0b0c; --bg1:#111113; --bg2:#151517;
+  --s1:#1b1b1e; --s2:#232327; --s3:#2c2c31; --s4:#38383e;
+  --tx:#ededed; --tx2:#a0a0a0; --tx3:#7b7f7d; --tx4:#55585a;
+  --white:#f4f4f2; --ash:#b2beb5;
+  --ev:#3560c4; --ev-tx:#7d9df0; --dl:#28344b; --dl-tx:#8d9cb9;
+  --hov:rgba(255,255,255,.035); --hov2:rgba(255,255,255,.06);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --font:'Geist',Arial,system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg0);color:var(--tx);font:500 14px/1.5 var(--font);-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:5% 35% 60%;}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select{font:inherit;color:inherit;border:0;outline:0;background:none}
+input::placeholder{color:var(--tx4)}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+::-webkit-calendar-picker-indicator{filter:invert(.65);cursor:pointer}
+::selection{background:rgba(178,190,181,.28)}
+*{scrollbar-width:thin;scrollbar-color:var(--s3) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:var(--s4)}
+.ic{width:18px;height:18px;flex:none;display:block}
+.mono{font-variant-numeric:tabular-nums}
+.muted{color:var(--tx3);font-size:13px}
+.grow{flex:1}
+
+@keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+
+/* tooltips */
+[data-tip]{position:relative}
+[data-tip]::after{content:attr(data-tip);position:absolute;white-space:nowrap;pointer-events:none;background:var(--s4);color:var(--tx);font:500 12px/1 var(--font);padding:7px 9px;border-radius:7px;opacity:0;z-index:60;left:50%;top:calc(100% + 8px);transform:translate(-50%,-3px);transition:opacity .15s,transform .15s}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translate(-50%,0);transition-delay:.5s}
+[data-tip=""]::after{display:none}
+[data-tip-pos=right]::after{left:calc(100% + 12px);top:50%;transform:translate(-4px,-50%)}
+[data-tip-pos=right]:hover::after{transform:translate(0,-50%)}
+[data-tip-pos=left]::after{left:auto;right:0;transform:translate(0,-3px)}
+[data-tip-pos=left]:hover::after{transform:none}
+
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
+.ed-body:focus-visible{outline:0}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* tool-bar */
+#toolbar{background:var(--bg0);display:flex;flex-direction:column;align-items:center;padding:22px 0;gap:30px;position:relative;z-index:30}
+.tb-group{display:flex;flex-direction:column;gap:6px}
+.tb-btn{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:var(--tx3);transition:background .2s,color .2s}
+.tb-btn:hover{background:var(--hov);color:var(--tx)}
+.tb-btn.is-active{background:var(--s2);color:var(--white)}
+.tb-btn .ic{width:20px;height:20px}
+
+/* task-list */
+#list{background:var(--bg1);display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.l-head{padding:28px 28px 16px}
+.day-nav{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.day-title{flex:1;display:flex;flex-direction:column;align-items:center;padding:4px 8px;border-radius:10px;transition:background .2s}
+.day-title:not(:disabled):hover{background:var(--hov)}
+.day-title:disabled{cursor:default}
+.day-title .cal-title{font-size:22px;line-height:1.25}
+.l-next{font-size:12px;color:var(--tx3);margin-top:8px}
+.l-day{font-size:22px;font-weight:600;letter-spacing:-.01em;line-height:1.25}
+.l-date{color:var(--tx3);font-size:13px;margin-top:1px}
+.nav{display:flex;gap:4px;align-items:center}
+.icon-btn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--tx2);transition:background .2s,color .2s,opacity .2s;flex:none}
+.icon-btn:hover{background:var(--hov);color:var(--white)}
+.icon-btn.is-on{background:var(--s2);color:var(--white)}
+.icon-btn.primary{background:var(--white);color:#111}
+.icon-btn.primary:hover{background:#fff;color:#000}
+.icon-btn.primary:disabled{opacity:.3;cursor:default}
+.text-btn{height:32px;padding:0 12px;border-radius:9px;color:var(--tx2);font-size:13px;transition:background .2s,color .2s}
+.text-btn:hover{background:var(--hov);color:var(--white)}
+.text-btn.is-dim{opacity:.4;cursor:default}
+.text-btn.is-dim:hover{background:none;color:var(--tx2)}
+.prog-wrap{display:flex;align-items:center;gap:12px;margin-top:18px}
+.prog{flex:1;height:4px;background:var(--s2);border-radius:4px;overflow:hidden}
+.prog span{display:block;height:100%;background:var(--ash);border-radius:4px;transition:width .7s cubic-bezier(.65,0,.35,1)}
+.prog-t{font-size:12px;color:var(--tx3);white-space:nowrap}
+.rows{flex:1;overflow-y:auto;padding:4px 16px 28px;touch-action:pan-y}
+.rows.anim{animation:fade .25s ease}
+.row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;cursor:pointer;transition:background .18s,opacity .2s;margin-bottom:2px}
+.row:hover{background:var(--hov)}
+.row.is-sel{background:var(--s2)}
+.row .check{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--tx4);transition:color .2s;flex:none}
+.row .check:hover{color:var(--tx)}
+.row .check .ic{width:25px;height:25px}
+.row.is-done .check{color:var(--ash)}
+.r-main{flex:1;min-width:0}
+.r-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;transition:color .2s}
+.r-meta{font-size:12px;color:var(--tx3);margin-top:1px}
+.r-time{font-size:13px;font-weight:600;color:var(--tx2);white-space:nowrap;font-variant-numeric:tabular-nums;transition:color .2s}
+.r-any{font-size:12px;color:var(--tx4);white-space:nowrap}
+.row.is-done .r-title{color:var(--tx3)}
+.row.is-done .r-meta,.row.is-done .r-time{color:var(--tx4)}
+.row.is-draft{opacity:.7;cursor:default}
+.grp{font-size:12px;color:var(--tx3);padding:14px 12px 6px}
+.grp:first-child{padding-top:4px}
+.row{position:relative}
+.row.is-now::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--white)}
+.row.is-now .r-time{color:var(--white)}
+.row.is-late .r-title,.row.is-late .r-time{color:var(--tx3)}
+.now-line{display:flex;align-items:center;gap:8px;margin:2px 12px;height:14px}
+.now-line::after{content:"";flex:1;height:1.5px;border-radius:1px;background:var(--ev)}
+.now-line span{font-size:11px;font-weight:700;color:var(--ev-tx);font-variant-numeric:tabular-nums}
+.row.just-done .check{animation:checkpop .32s cubic-bezier(.3,1.6,.5,1)}
+@keyframes checkpop{0%{transform:scale(.6)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.prog-wrap.is-all .prog span{background:var(--white)}
+.prog-wrap.is-all .prog-t{color:var(--white)}
+.empty .text-btn{margin-top:4px;background:var(--s2)}
+.row-input{background:var(--s1);cursor:text}
+.row-input .lead{width:26px;height:26px;display:grid;place-items:center;color:var(--tx4);flex:none}
+.row-input input{flex:1;font-weight:600;min-width:0}
+.r-snip{font-size:12px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.r-date{font-size:12px;color:var(--tx3);align-self:flex-start;margin-top:2px;white-space:nowrap}
+.empty{padding:56px 12px;color:var(--tx3);font-size:13px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty .ic{width:26px;height:26px;color:var(--tx4)}
+
+/* info-space */
+#info{background:var(--bg2);overflow-y:auto;overflow-x:hidden;position:relative}
+.view{padding:28px 44px 64px;max-width:1040px}
+.view.enter{animation:enter .32s var(--ease)}
+.item-head{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.head-title{flex:1;min-width:0}
+.kind{font-size:12px;color:var(--tx3);margin-bottom:2px}
+.head-title h1,.cal-title{font-size:26px;font-weight:600;letter-spacing:-.015em;line-height:1.25;word-break:break-word}
+.title-edit{width:100%;font-size:26px;font-weight:600;letter-spacing:-.015em;line-height:1.25;padding:0}
+.actions{display:flex;gap:4px}
+.actions.edit-acts{gap:14px}
+.notes-head{display:flex;flex-direction:column;align-items:center;text-align:center}
+.icon-btn.back-btn:hover{background:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:30px}
+.stat{background:var(--s1);border-radius:14px;padding:14px 16px;transition:background .2s}
+.stat:focus-within{background:var(--s2)}
+.stat-l{display:flex;gap:7px;align-items:center;color:var(--tx3);font-size:12px}
+.req{margin-left:auto;color:var(--tx4);font-size:11px}
+.stat-v{margin-top:6px;font-size:16px;font-weight:600;min-height:24px;font-variant-numeric:tabular-nums}
+.none{color:var(--tx4);font-weight:500}
+.inrow{display:flex;align-items:center;gap:2px}
+.bare{font-size:16px;font-weight:600;width:100%;padding:0;font-variant-numeric:tabular-nums}
+.bare.num{width:1ch;min-width:1ch;text-align:left;box-sizing:content-box;padding:0}
+.unit{color:var(--tx);font-size:16px;font-weight:600;margin:0 14px 0 4px;font-variant-numeric:tabular-nums}
+.mini{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:var(--tx3);transition:background .2s,color .2s;flex:none}
+.mini:hover{background:var(--hov2);color:var(--white)}
+.mini .ic{width:14px;height:14px}
+.sec-l{font-size:12px;color:var(--tx3);margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.block{background:var(--s1);border-radius:14px;padding:14px 16px;margin-bottom:30px;display:flex;flex-direction:column;gap:12px}
+.seg{display:inline-flex;flex-wrap:wrap;background:var(--s2);border-radius:10px;padding:3px;gap:2px;align-self:flex-start}
+.seg button{height:30px;min-width:34px;padding:0 12px;border-radius:8px;color:var(--tx2);font-size:13px;display:grid;place-items:center;transition:background .2s,color .2s}
+.seg button:hover{color:var(--white)}
+.seg button.on{background:var(--s4);color:var(--white)}
+.seg button .ic{width:15px;height:15px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{height:30px;padding:0 12px;border-radius:15px;background:var(--s2);color:var(--tx2);font-size:13px;display:inline-flex;align-items:center;gap:4px;transition:background .2s,color .2s}
+button.chip:hover{color:var(--white)}
+.chip.on{background:var(--white);color:#111}
+.chip button{display:grid;place-items:center;color:var(--tx3);margin-right:-6px;width:20px;height:20px;border-radius:50%}
+.chip button:hover{color:var(--white);background:var(--hov2)}
+.chip button .ic{width:12px;height:12px}
+.field-s{background:var(--s2);border-radius:8px;padding:5px 10px;font-size:13px}
+.inl{display:flex;align-items:center;gap:10px;color:var(--tx3);font-size:13px}
+.foot{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:24px}
+.btn{height:38px;padding:0 18px;border-radius:10px;font-weight:600;transition:background .2s,opacity .2s,transform .1s,color .2s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--white);color:#111}
+.btn.primary:hover{background:#fff}
+.btn.ghost{color:var(--tx2)}
+.btn.ghost:hover{background:var(--hov);color:var(--white)}
+.btn.sm{height:32px;padding:0 14px;font-size:13px}
+
+/* pickers */
+.pick{font-size:16px;font-weight:600;color:var(--tx);padding:0;text-align:left;font-variant-numeric:tabular-nums;transition:color .2s}
+.pick:hover{color:var(--white)}
+.pick.empty{color:var(--tx4)}
+.pick.sm{font-size:13px;background:var(--s2);padding:6px 12px;border-radius:8px;transition:background .2s,color .2s}
+.pick.sm:hover{background:var(--hov2)}
+.pop.dp{width:286px}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:600;font-size:14px}
+.dp-wd,.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.dp-wd span{font-size:11px;color:var(--tx4);text-align:center;padding:4px 0}
+.dp-d{width:34px;height:34px;border-radius:50%;justify-self:center;font-size:13px;color:var(--tx2);font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+.dp-d:hover{background:var(--hov2);color:var(--white)}
+.dp-d.today{color:var(--white);font-weight:700}
+.dp-d.on{background:var(--white);color:#111;font-weight:700}
+.pop.tp-pop{width:200px}
+.tp-lab{display:flex;font-size:11px;color:var(--tx4);margin-bottom:6px}
+.tp-lab span{flex:1;text-align:center}
+.tp{display:flex;gap:6px}
+.tp-col{flex:1;height:216px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.tp-col button{height:32px;flex:none;border-radius:8px;font-size:13px;color:var(--tx2);font-variant-numeric:tabular-nums;transition:background .15s,color .15s}
+.tp-col button:hover{background:var(--hov2);color:var(--white)}
+.tp-col button.on{background:var(--white);color:#111;font-weight:700}
+.tp-val{font-weight:700;font-variant-numeric:tabular-nums}
+.pop .text-btn{background:var(--s3)}
+
+/* rich text */
+.rich{font-size:15px;line-height:1.7;color:var(--tx);font-weight:500;word-wrap:break-word}
+.rich h1{font-size:24px;font-weight:700;line-height:1.3;margin:.7em 0 .3em;letter-spacing:-.01em}
+.rich h2{font-size:20px;font-weight:700;line-height:1.35;margin:.7em 0 .3em}
+.rich h3{font-size:17px;font-weight:600;margin:.6em 0 .25em}
+.rich > :first-child{margin-top:0}
+.rich > :not(table){max-width:72ch}
+.rich p{margin:.2em 0}
+.rich ul,.rich ol{padding-left:1.5em;margin:.35em 0}
+.rich li{margin:.12em 0;padding-left:.2em}
+.rich li::marker{color:var(--tx3)}
+.rich blockquote{margin:0 0 0 2em}
+.rich b,.rich strong{font-weight:700}
+.rich table{border-collapse:separate;border-spacing:0;margin:.7em 0;min-width:55%;border:1px solid var(--s3);border-radius:12px;overflow:hidden}
+.rich td,.rich th{background:none;padding:8px 14px;vertical-align:top;min-width:64px;text-align:left;font-weight:500;border-right:1px solid var(--s3);border-bottom:1px solid var(--s3);transition:background .15s}
+.rich td:last-child,.rich th:last-child{border-right:0}
+.rich tr:last-child>td,.rich tr:last-child>th{border-bottom:0}
+
+/* editor */
+.editor{background:var(--s1);border-radius:16px}
+.ed-bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:2px;padding:8px;background:var(--s1);border-radius:16px 16px 0 0}
+.eb{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--tx2);transition:background .18s,color .18s}
+.eb:hover{background:var(--hov2);color:var(--white)}
+.eb.is-on{background:var(--s3);color:var(--white)}
+.eb .ic{width:17px;height:17px}
+.ed-bar .gap{width:10px;flex:none}
+.dd{height:32px;padding:0 8px 0 10px;border-radius:8px;color:var(--tx2);font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:background .18s,color .18s}
+.dd:hover{background:var(--hov2);color:var(--white)}
+.dd .ic{width:13px;height:13px;color:var(--tx3)}
+.dd[data-dd=block]{min-width:112px;justify-content:space-between}
+.pop.menu-pop{width:auto;min-width:170px;padding:6px}
+.menu{display:flex;flex-direction:column;gap:1px}
+.mi{display:flex;align-items:center;justify-content:space-between;gap:16px;height:34px;padding:0 10px;border-radius:8px;color:var(--tx2);text-align:left;transition:background .15s,color .15s}
+.mi:hover{color:var(--white)}
+.mi.on{color:var(--white)}
+.mi .ic{width:14px;height:14px}
+.mi-block-h1{font-size:18px;font-weight:700}.mi-block-h2{font-size:16px;font-weight:700}.mi-block-h3{font-size:14px;font-weight:600}
+.mi-size-13px{font-size:12px}.mi-size-15px{font-size:14px}.mi-size-19px{font-size:17px}.mi-size-25px{font-size:21px}
+.tbl-tools{display:none;align-items:center;gap:2px}
+.tbl-tools.on{display:flex;animation:fade .2s}
+.tbl-tools.idle .eb,.tbl-tools .eb.off{opacity:.3;pointer-events:none}
+.ed-body{min-height:240px;padding:12px 22px 24px;outline:0}
+.ed-body:empty::before{content:attr(data-ph);color:var(--tx4)}
+.ed-body td.sel{background:rgba(178,190,181,.16)}
+.ed-body td.flash{background:var(--ash);color:#111}
+
+/* calendar */
+.cal-head{margin-bottom:26px}
+.months{display:grid;grid-template-columns:1fr 1fr;gap:40px;touch-action:pan-y;user-select:none;cursor:grab;transition:transform .25s var(--ease)}
+.months.dragging{transition:none;cursor:grabbing}
+.months.slide-next,.rows.slide-next{animation:slideNext .32s var(--ease)}
+.months.slide-prev,.rows.slide-prev{animation:slidePrev .32s var(--ease)}
+@keyframes slideNext{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes slidePrev{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.m-name{font-size:15px;font-weight:600;margin-bottom:12px}
+.m-name span{color:var(--tx3);font-weight:500}
+.wd,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.days{justify-items:center}
+.wd span{font-size:11px;color:var(--tx4);text-align:center;padding-bottom:6px}
+.day{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:var(--tx2);transition:background .18s,color .18s;position:relative;font-variant-numeric:tabular-nums}
+.day:hover{color:var(--white)}
+.day.is-past{color:var(--tx4)}
+.day.is-dl{background:var(--dl);color:#cfd7e6}
+.day.is-ev{background:var(--ev);color:#fff}
+.day.is-sel{color:var(--white);font-weight:700}
+.day.is-today,.day.is-today.is-sel{background:var(--white);color:#111;font-weight:700}
+.day.is-both{box-shadow:inset 0 0 0 2px #7f93bd}
+.day.is-dl:hover,.day.is-ev:hover,.day.is-today:hover{filter:brightness(1.1)}
+.day.is-sel::after{content:"";position:absolute;bottom:9px;left:50%;width:12px;height:2px;border-radius:2px;background:currentColor;transform:translateX(-50%)}
+.cal-bottom{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:38px}
+.sec-h{font-size:13px;color:var(--tx3);margin-bottom:8px;padding-left:12px}
+.cal-bottom .muted{padding-left:12px}
+.it{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .18s}
+.it:hover{background:var(--hov)}
+.it > .ic{width:16px;height:16px}
+.it.ev > .ic{color:var(--ev-tx)}
+.it.dl > .ic{color:var(--dl-tx)}
+.it-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.it-r{font-size:12px;color:var(--tx3);display:flex;gap:10px;white-space:nowrap}
+.it-r .mono{color:var(--tx2);font-weight:600}
+.it.is-done .it-t{color:var(--tx3)}
+
+/* popovers */
+.pop{position:fixed;z-index:100;background:var(--s2);border-radius:16px;padding:16px;box-shadow:0 24px 60px rgba(0,0,0,.55);animation:pop .18s var(--ease)}
+.pop{width:310px;max-height:calc(100vh - 24px);overflow-y:auto;scrollbar-width:thin}
+.pop-t{font-weight:700;font-size:14px;margin-bottom:4px}
+.pop-head{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.pop-head .pop-t{flex:1;margin:0}
+.pop-ok{width:32px;height:32px}
+.icon-btn.pop-ok,.icon-btn.pop-ok.primary{background:none;color:var(--white)}
+.icon-btn.pop-ok:hover,.icon-btn.pop-ok.primary:hover{background:none;color:#fff}
+.pop-ok .ic{width:16px;height:16px}
+.stat-v .freq-v{font-size:14px;line-height:1.4}
+.pf{margin-top:14px}
+.pf label{display:block;font-size:12px;color:var(--tx3);margin-bottom:6px}
+.pf-row{display:flex;gap:8px;align-items:center}
+.pop .field{background:var(--s3);border-radius:8px;padding:7px 10px;width:100%;font-size:13px;font-weight:600;transition:background .2s}
+.pop .field:focus{background:var(--s4)}
+.pop .seg{background:var(--s3)}
+.pop .chip{background:var(--s3)}
+.pop .chip.on{background:var(--white)}
+.chips.sm{margin-top:8px}
+.chips.sm .chip{height:26px;padding:0 9px;font-size:12px}
+.preview{margin-top:16px;font-size:13px}
+.preview div{display:flex;justify-content:space-between;padding:3px 0;color:var(--tx3)}
+.preview b{font-weight:700;color:var(--white);font-variant-numeric:tabular-nums}
+.pop-foot{display:flex;align-items:center;margin-top:14px;gap:6px}
+.tgrid{display:grid;grid-template-columns:repeat(8,20px);gap:4px;margin-top:12px}
+.tgrid i{width:20px;height:20px;border-radius:5px;background:var(--s3);cursor:pointer;transition:background .1s}
+.tgrid i.on{background:var(--ash)}
+.tg-l{margin-top:10px}
+
+/* frequency, compounding, backup */
+.pop.fq-pop{width:340px}
+.pop.bk-pop{width:320px}
+.fp-l{font-size:12px;color:var(--tx3);margin:14px 0 6px}
+.fsel-wrap{position:relative}
+.fsel-top{margin-top:14px}
+.fsel{width:100%;height:38px;padding:0 12px;border-radius:10px;background:var(--s3);display:flex;align-items:center;justify-content:space-between;font-weight:600;transition:background .2s}
+.fsel:hover{background:var(--s4)}
+.fsel .ic{width:15px;height:15px;color:var(--tx3);transition:transform .2s var(--ease)}
+.fsel.open .ic{transform:rotate(180deg)}
+.fopts{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;background:var(--s3);border-radius:12px;padding:4px;box-shadow:0 16px 40px rgba(0,0,0,.5);animation:pop .15s var(--ease)}
+.fopts .mi{height:36px}
+.wbar{display:flex;gap:0}
+.wbar button{flex:1;height:34px;border-radius:0;background:var(--s3);font-size:12.5px;font-weight:600;color:var(--tx2);transition:background .2s,color .2s}
+.wbar button:hover{color:var(--white)}
+.wbar button.on{background:var(--white);color:#111}
+.wbar button:first-child{border-radius:10px 0 0 10px}
+.wbar button:last-child{border-radius:0 10px 10px 0}
+.fsum{margin-top:14px;font-size:12.5px;color:var(--tx2)}
+.stat-v .sub{display:block;font-size:12px;font-weight:500;color:var(--tx3);margin-top:2px}
+.rich .cmp{color:var(--dl-tx);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ed-body .cmp{cursor:pointer;transition:color .15s}
+.ed-body .cmp:hover{color:#b6c3dd}
+.tb-foot{margin-top:auto}
+.btn.wide{width:100%;margin-top:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bk-meta{font-size:12.5px;color:var(--tx3);margin:12px 0 10px;line-height:1.6}
+.bk-msg{margin-top:8px;min-height:18px}
+.mi-sep{height:1px;margin:4px 6px;background:var(--s4)}
+.nsearch{display:flex;align-items:center;gap:8px;margin-top:14px;height:36px;padding:0 12px;border-radius:10px;background:var(--s1);color:var(--tx3)}
+.nsearch .ic{width:15px;height:15px}
+.nsearch input{flex:1;min-width:0;font-size:13px;color:var(--tx)}
+#savewarn{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:300;background:var(--white);color:#111;padding:9px 14px;border-radius:10px;font-weight:600;font-size:13px;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+
+.dsec{margin-bottom:34px;max-width:640px}
+.dsec-h{font-size:15px;font-weight:600;margin-bottom:8px}
+.dtext{color:var(--tx3);font-size:13px;line-height:1.6;margin-bottom:12px}
+.dtext.small{font-size:12px;margin:-4px 0 12px}
+.dcard{background:var(--s1);border-radius:14px;padding:8px 16px;margin-bottom:12px}
+.drow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:8px 0;font-size:13px}
+.drow span{color:var(--tx3);display:flex;flex-direction:column;gap:2px}
+.drow span em{font-style:normal;font-size:12px;color:var(--tx4)}
+.drow b{font-weight:600;text-align:right}
+.dfield{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;font-size:12px;color:var(--tx3)}
+.dfield input{height:40px;border-radius:10px;background:var(--s1);padding:0 12px;font-size:14px;color:var(--tx)}
+.dfield input:focus{background:var(--s2)}
+.dactions{display:flex;gap:8px;flex-wrap:wrap}
+.dactions .btn{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.dactions .btn.ghost{background:var(--s1)}
+.dactions .btn.ghost:hover{background:var(--s2)}
+.dactions .btn:disabled{opacity:.5;cursor:default}
+.dmsg{margin-top:10px;font-size:13px;color:var(--tx2);min-height:18px}
+.dmsg.err{color:#e8a0a0}
+
+/* phone layout: one panel at a time, tool-bar along the bottom */
+.m-only{display:none!important}
+.sec-h .lnk{margin-left:auto}
+.lnk{font-size:13px;font-weight:600;color:var(--tx2);padding:4px 8px;border-radius:8px;transition:background .2s,color .2s}
+.lnk:hover{background:var(--hov);color:var(--white)}
+@media (max-width:760px){
+  .m-only{display:inline-flex!important}
+  .tb-btn.m-only{display:grid!important}
+  .tb-btn[data-new],.tb-btn[data-data]{display:none!important}
+  .tb-foot{display:contents}
+  .pop.fq-pop,.pop.bk-pop{width:calc(100vw - 24px)}
+  .nsearch input{font-size:16px}
+  .dfield input{font-size:16px}
+  .drow{flex-wrap:wrap}
+  .tb-btn[data-tab=home]{order:1}.tb-btn[data-mcal]{order:2}.tb-btn[data-tab=notes]{order:3}.tb-btn[data-mplus]{order:4}
+  .tb-btn[data-mplus]{background:var(--white);color:#111;border-radius:50%}
+  .tb-btn[data-mplus]:hover{background:#fff;color:#000}
+  #list,#info{touch-action:pan-y}
+  body.m-left:not(.m-info) #info{transform:translateX(-100%)}
+  body.m-info.m-left #list{transform:translateX(18%)}
+  .mi-icon{justify-content:flex-start;gap:12px;height:42px;font-size:15px}
+  .mi-icon .ic{width:18px;height:18px}
+  body{display:block;height:100%;overflow:hidden}
+  #toolbar{position:fixed;left:0;right:0;bottom:0;z-index:50;flex-direction:row;justify-content:space-around;align-items:center;gap:0;height:calc(62px + env(safe-area-inset-bottom,0px));padding:0 max(6px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(6px,env(safe-area-inset-left,0px));background:var(--bg0)}
+  .tb-group{display:contents}
+  .tb-btn{width:44px;height:44px;border-radius:12px}
+  [data-tip]::after{display:none}
+  #list,#info{position:fixed;left:0;right:0;top:0;bottom:calc(62px + env(safe-area-inset-bottom,0px));padding-top:env(safe-area-inset-top,0px)}
+  #list{transition:transform .32s var(--ease),opacity .32s}
+  #info{z-index:20;transform:translateX(100%);visibility:hidden;transition:transform .32s var(--ease),visibility 0s .32s}
+  body.m-info #info{transform:none;visibility:visible;transition:transform .32s var(--ease)}
+  body.m-info #list{transform:translateX(-18%);opacity:.3}
+  .l-head{padding:16px max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px))}
+  .rows{padding:4px 8px 24px}
+  .row{padding:12px 10px}
+  .view{padding:16px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+  .item-head{gap:6px;margin-bottom:18px}
+  .head-title h1,.title-edit{font-size:22px}
+  .actions{gap:0}
+  .stats{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
+  .stat-wide{grid-column:1/-1}
+  .stat{padding:12px 14px}
+  .cal-head{margin-bottom:18px}
+  .day-title .cal-title{font-size:18px}
+  .months{grid-template-columns:1fr;gap:22px}
+  .day{width:40px;height:40px}
+  .cal-bottom{grid-template-columns:1fr;gap:24px;margin-top:26px}
+  .sec-h{display:flex;align-items:center}
+  .ed-body{padding:10px 14px 20px}
+  .rich{overflow-x:auto}
+  .rich table{width:100%;min-width:0}
+  .pop{max-width:calc(100vw - 24px)}
+  .modal{width:calc(100vw - 32px);max-width:360px}
+  .choice{height:46px}
+  .row-input input,.pop .field,.bare{font-size:16px}
+}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:200;animation:fade .2s}
+.modal{background:var(--s2);border-radius:16px;padding:22px;width:340px;animation:pop .2s var(--ease)}
+.modal .m-t{font-weight:700;font-size:15px;margin-bottom:4px}
+.modal .foot{margin-top:20px}
+.choices{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.choice{height:42px;padding:0 14px;border-radius:10px;background:var(--s3);text-align:left;font-weight:600;transition:background .2s}
+.choice:hover{background:rgba(255,255,255,.1)}
+.choice.first{background:var(--white);color:#111}
+.choice.first:hover{background:#fff}
+.modal .foot .btn.ghost{background:none}
+
+/* study plan */
+.is-study h1{margin-top:1.9em}
+.is-study > h1:first-child{margin-top:0}
+.is-study h2{margin-top:1.5em}
+.is-study h3{margin-top:1.25em}
+.is-study ul{list-style:none;padding-left:1.25em}
+.is-study li{position:relative;padding-left:0}
+.is-study li::before{content:"-";position:absolute;left:-1.05em;color:var(--tx3)}
+.is-study ul.books li::before{left:-1.02em;font-size:1.4em;font-weight:500;line-height:calc(1.7em / 1.4);color:var(--tx)}
+.sa-head{display:flex;align-items:flex-start;gap:9px}
+.sa-t{min-width:0;transition:color .2s}
+.sa-check{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--tx4);transition:color .2s;flex:none;padding:0}
+.sa-check:hover{color:var(--tx)}
+.sa-check .ic{width:24px;height:24px}
+.sa-head.is-done .sa-check{color:var(--ash)}
+.sa-head.is-done .sa-t{color:var(--tx3)}
+.is-study > *{transition:color .2s}
+.is-study .sa-dim{color:var(--tx3)}
+.is-study ul.sa-dim li::before,.is-study ul.books.sa-dim li::before{color:var(--tx4)}
+.rich ul.dash{list-style:none;padding-left:1.25em}
+.rich ul.dash li{position:relative;padding-left:0}
+.rich ul.dash li::before{content:"-";position:absolute;left:-1.05em;color:var(--tx3)}
+.sa-check.sa-pop{animation:checkpop .32s cubic-bezier(.3,1.6,.5,1)}
+.grp-gap{height:18px}
+.rich .day-start{margin-top:1em}
+.rich ul{list-style:none;padding-left:1.25em}
+.rich ul>li{position:relative;padding-left:0}
+.rich ul>li::before{content:"-";position:absolute;left:-1.05em;color:var(--tx3)}
+.is-study ul.books>li::before{left:-1.02em;font-size:1.4em;font-weight:500;line-height:calc(1.7em / 1.4);color:var(--tx)}
+.is-study ul.sa-dim>li::before{color:var(--tx4)}
+#rich ul>li::first-letter{text-transform:uppercase}
+</style>
+</head>
+<body>
+<nav id="toolbar"></nav>
+<section id="list"></section>
+<main id="info"></main>
+
+<script>
+/* ---------- icons ---------- */
+const ICONS={
+house:'<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+trend:'<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+sliders:'<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+search:'<circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/>',
+listPlus:'<path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v6"/><path d="M21 12h-6"/>',
+target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+calPlus:'<path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M3 10h18"/><path d="M16 19h6"/><path d="M19 16v6"/>',
+calendar:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+fileText:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+filePlus:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/>',
+arrowLeft:'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+check:'<path d="M20 6 9 17l-5-5"/>',
+circle:'<circle cx="12" cy="12" r="9"/>',
+circleCheck:'<circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 4.5-4.5"/>',
+pencil:'<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+copy:'<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+trash:'<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+chevL:'<path d="m15 18-6-6 6-6"/>',
+chevR:'<path d="m9 18 6-6-6-6"/>',
+chevD:'<path d="m6 9 6 6 6-6"/>',
+bold:'<path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/>',
+italic:'<line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/>',
+underline:'<path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/>',
+strike:'<path d="M16 4H9a3 3 0 0 0-2.83 4"/><path d="M14 12a4 4 0 0 1 0 8H6"/><line x1="4" x2="20" y1="12" y2="12"/>',
+eraser:'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>',
+list:'<path d="M3 12h.01"/><path d="M3 18h.01"/><path d="M3 6h.01"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M8 6h13"/>',
+listOrdered:'<path d="M10 12h11"/><path d="M10 18h11"/><path d="M10 6h11"/><path d="M4 10h2"/><path d="M4 6h1v4"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>',
+indent:'<path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m3 8 4 4-4 4"/>',
+outdent:'<path d="M21 12H11"/><path d="M21 18H11"/><path d="M21 6H11"/><path d="m7 8-4 4 4 4"/>',
+table:'<path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>',
+merge:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3"/><path d="m17 9-3 3 3 3"/>',
+unmerge:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/><path d="m8 10-2 2 2 2"/><path d="m16 10 2 2-2 2"/>',
+split:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v3"/><path d="M12 10.5v3"/><path d="M12 17v3"/>',
+rowAdd:'<rect x="3" y="3" width="18" height="11" rx="2"/><path d="M12 17v4"/><path d="M10 19h4"/>',
+rowDel:'<rect x="3" y="3" width="18" height="11" rx="2"/><path d="M9.5 19h5"/>',
+colAdd:'<rect x="3" y="3" width="11" height="18" rx="2"/><path d="M17 12h4"/><path d="M19 10v4"/>',
+colDel:'<rect x="3" y="3" width="11" height="18" rx="2"/><path d="M17 12h4"/>',
+x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+minus:'<path d="M5 12h14"/>',
+divide:'<circle cx="12" cy="6" r="1"/><line x1="5" x2="19" y1="12" y2="12"/><circle cx="12" cy="18" r="1"/>',
+clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+timer:'<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
+text:'<path d="M15 12H3"/><path d="M17 18H3"/><path d="M21 6H3"/>',
+flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+hourglass:'<path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'
+};
+const ic=(n,c='')=>`<svg class="ic ${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||''}</svg>`;
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+
+/* ---------- dates ---------- */
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WEEK=[1,2,3,4,5,6,0];
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const pd=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const todayISO=()=>iso(new Date());
+const addDays=(s,n)=>{const d=pd(s);d.setDate(d.getDate()+n);return iso(d)};
+const addMonths=(s,n)=>{const d=pd(s);return iso(new Date(d.getFullYear(),d.getMonth()+n,1))};
+const diffDays=(a,b)=>Math.round((pd(b)-pd(a))/864e5);
+const fmtLong=s=>{const d=pd(s);return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`};
+const fmtFull=s=>{const d=pd(s);return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`};
+const fmtShort=s=>{const d=pd(s);return `${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`};
+const fmtDur=m=>{m=+m||0;if(!m)return '';const h=Math.floor(m/60),r=m%60;return h?(r?`${h} h ${r} min`:`${h} h`):`${r} min`};
+const endTime=(t,dur)=>{const[h,m]=t.split(':').map(Number);const x=(h*60+m+(+dur||0))%1440;return `${pad(Math.floor(x/60))}:${pad(x%60)}`};
+const relDays=s=>{const n=diffDays(todayISO(),s);if(n===0)return 'Today';if(n===1)return 'Tomorrow';if(n===-1)return 'Yesterday';return n>0?`In ${n} days`:`${-n} days ago`};
+const monthStart=s=>{const d=pd(s);return iso(new Date(d.getFullYear(),d.getMonth(),1))};
+
+const STUDY_HTML="<h1>Computer Science &amp; Engineering Foundations</h1><p>These subjects provide the theoretical understanding necessary to understand what happens beneath the software you build.</p><h2 data-sa=\"sa-computer-science-fundamentals\">Computer Science Fundamentals</h2><ul><li>Algorithms and computational complexity (Big O).</li><li>Data structures and abstract data types.</li><li>Discrete mathematics and mathematical logic.</li><li>Boolean algebra and set theory.</li><li>Graph theory and combinatorics.</li><li>Automata theory and formal languages.</li><li>Computability and complexity theory.</li><li>Programming paradigms.</li><li>Compiler and interpreter fundamentals.</li><li>Software execution models.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Introduction to Algorithms</i></b>, 4th ed. (2022), by Cormen, Leiserson, Rivest, Stein.</li><li><b><i>Discrete Mathematics and Its Applications</i></b>, 9th ed. (2025), by Kenneth H. Rosen.</li><li><b><i>Introduction to the Theory of Computation</i></b>, 3rd ed. (2012), by Michael Sipser.</li><li><b><i>Engineering a Compiler</i></b>, 3rd ed. (2022), by Cooper, Torczon.</li><li><b><i>Concepts, Techniques, and Models of Computer Programming</i></b>, 1st ed. (2004), by Van Roy, Haridi.</li></ul><h2 data-sa=\"sa-mathematics-for-software-engineering\">Mathematics for Software Engineering</h2><ul><li>Linear algebra.</li><li>Calculus and differential equations (relevant applications).</li><li>Probability and statistics.</li><li>Number theory.</li><li>Discrete mathematics.</li><li>Numerical methods and optimization.</li><li>Information theory.</li><li>Cryptographic mathematics.</li><li>Logic and mathematical proofs.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Advanced Engineering Mathematics</i></b>, 10th ed. (2011), by Erwin Kreyszig.</li><li><b><i>Introduction to Probability</i></b>, 2nd ed. (2019), by Blitzstein, Hwang.</li><li><b><i>Discrete Mathematics and Its Applications</i></b>, 9th ed. (2025), by Kenneth H. Rosen.</li><li><b><i>An Introduction to Mathematical Cryptography</i></b>, 2nd ed. (2014), by Hoffstein, Pipher, Silverman.</li><li><b><i>Elements of Information Theory</i></b>, 2nd ed. (2006), by Cover, Thomas.</li><li><b><i>How to Prove It</i></b>, 3rd ed. (2019), by Daniel J. Velleman.</li></ul><h2 data-sa=\"sa-computer-architecture-hardware\">Computer Architecture &amp; Hardware</h2><ul><li>Digital logic and circuit fundamentals.</li><li>CPU architecture and instruction sets.</li><li>Registers, memory hierarchy and cache.</li><li>RAM, ROM and persistent storage.</li><li>GPU architecture and parallel processing.</li><li>Binary, hexadecimal and data representation.</li><li>Assembly language.</li><li>Hardware interfaces and communication buses.</li><li>Embedded systems and microcontrollers.</li><li>Virtualization at the hardware level.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Digital Design and Computer Architecture: RISC-V Edition</i></b>, 1st ed. (2021), by Harris, Harris.</li><li><b><i>Computer Architecture: A Quantitative Approach</i></b>, 7th ed. (2025), by Hennessy, Patterson, Kozyrakis.</li><li><b><i>Computer Systems: A Programmer's Perspective</i></b>, 3rd ed. (2015), by Bryant, O'Hallaron.</li><li><b><i>Making Embedded Systems</i></b>, 2nd ed. (2024), by Elecia White.</li></ul><h2 data-sa=\"sa-programming-languages-software-development-fundamentals\">Programming Languages &amp; Software Development Fundamentals</h2><ul><li>Programming logic and problem-solving.</li><li>Procedural programming.</li><li>Object-oriented programming.</li><li>Functional programming.</li><li>Declarative programming.</li><li>Event-driven and asynchronous programming.</li><li>Memory management and garbage collection.</li><li>Static and dynamic typing.</li><li>Error handling and debugging.</li><li>Concurrency and parallelism.</li><li>Language interoperability and foreign-function interfaces.</li><li>Version control (Git).</li><li>Code quality, refactoring and maintainability.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The Pragmatic Programmer</i></b>, 20th anniversary ed. (2019), by Thomas, Hunt.</li><li><b><i>Refactoring</i></b>, 2nd ed. (2018), by Martin Fowler.</li><li><b><i>Pro Git</i></b>, 2nd ed. (2014, free online), by Chacon, Straub.</li></ul><h2 data-sa=\"sa-essential-language-coverage\">Essential language coverage</h2><ul><li>C and C++ — systems and performance.</li><li>Python — automation, scripting, data and AI.</li><li>JavaScript and TypeScript — web and application development.</li><li>Java or C# — enterprise applications.</li><li>SQL — relational databases.</li><li>Rust or Go — systems and infrastructure.</li><li>Bash and PowerShell — operating system automation.</li><li>Assembly — low-level understanding.</li></ul><p>You do not need to master every language equally. You need to understand the paradigms and be able to work proficiently in the languages relevant to your systems.</p><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Modern C</i></b>, 3rd ed. (2025), by Jens Gustedt.</li><li><b><i>Programming: Principles and Practice Using C++</i></b>, 3rd ed. (2024), by Bjarne Stroustrup.</li><li><b><i>Fluent Python</i></b>, 2nd ed. (2022), by Luciano Ramalho.</li><li><b><i>JavaScript: The Definitive Guide</i></b>, 7th ed. (2020), by David Flanagan.</li><li><b><i>Effective TypeScript</i></b>, 2nd ed. (2024), by Dan Vanderkam.</li><li><b><i>Effective Java</i></b>, 3rd ed. (2018), by Joshua Bloch.</li><li><b><i>C# 12 in a Nutshell</i></b>, 2023 edition, by Joseph Albahari.</li><li><b><i>Learning SQL</i></b>, 3rd ed. (2020), by Alan Beaulieu.</li><li><b><i>The Rust Programming Language</i></b>, 3rd ed. (2026), by Klabnik, Nichols, Krycho.</li><li><b><i>Learning Go</i></b>, 2nd ed. (2024), by Jon Bodner.</li><li><b><i>The Linux Command Line</i></b>, 2nd ed. (2019), by William Shotts.</li><li><b><i>Learn PowerShell in a Month of Lunches</i></b>, 4th ed. (2022), by Plunk, Petty, Leonhardt, Hicks.</li><li><b><i>x64 Assembly Language Step-by-Step</i></b>, 4th ed. (2023), by Jeff Duntemann.</li></ul><h1>Systems Engineering &amp; Infrastructure</h1><h2 data-sa=\"sa-operating-systems-systems-programming\">Operating Systems &amp; Systems Programming</h2><ul><li>Operating system architecture.</li><li>Linux administration and internals.</li><li>Windows administration and internals.</li><li>Processes and threads.</li><li>CPU scheduling.</li><li>Memory management and virtual memory.</li><li>Filesystems and storage management.</li><li>Kernel architecture and system calls.</li><li>Permissions, users and access control.</li><li>Drivers and hardware communication.</li><li>System programming.</li><li>Shell scripting and automation.</li><li>System services and daemons.</li><li>Boot processes and initialization.</li><li>Logs, diagnostics and system troubleshooting.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Operating Systems: Three Easy Pieces</i></b>, 2018, updated online, by Arpaci-Dusseau, Arpaci-Dusseau.</li><li><b><i>The Linux Programming Interface</i></b>, 1st ed. (2010), by Michael Kerrisk.</li><li><b><i>How Linux Works</i></b>, 3rd ed. (2021), by Brian Ward.</li><li><b><i>Windows Internals, Part 1 and Part 2</i></b>, 7th ed. (2017 and 2021), by Yosifovich, Allievi, Russinovich, Ionescu, Solomon.</li></ul><h2 data-sa=\"sa-computer-networking-internet-architecture\">Computer Networking &amp; Internet Architecture</h2><ul><li>OSI and TCP/IP models.</li><li>IP addressing, subnetting and CIDR.</li><li>IPv4 and IPv6.</li><li>TCP, UDP and ICMP.</li><li>DNS and domain infrastructure.</li><li>HTTP and HTTPS.</li><li>TLS and SSL.</li><li>Routing and switching.</li><li>Firewalls and network segmentation.</li><li>VLANs and VPNs.</li><li>NAT and proxy servers.</li><li>Load balancing.</li><li>Network sockets and communication protocols.</li><li>Wireless networking.</li><li>Network monitoring and packet analysis.</li><li>CDNs and edge networking.</li><li>BGP and internet routing fundamentals.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Computer Networking: A Top-Down Approach</i></b>, 9th ed. (2025), by Kurose, Ross.</li><li><b><i>TCP/IP Illustrated, Volume 1</i></b>, 2nd ed. (2011), by Fall, Stevens.</li><li><b><i>Bulletproof TLS and PKI</i></b>, 2nd ed. (2022), by Ivan Ristić.</li><li><b><i>Practical Packet Analysis</i></b>, 3rd ed. (2017), by Chris Sanders.</li></ul><h2 data-sa=\"sa-servers-hosting-infrastructure-engineering\">Servers, Hosting &amp; Infrastructure Engineering</h2><ul><li>Dedicated servers and VPS.</li><li>Shared hosting and managed hosting.</li><li>Web server architecture.</li><li>Nginx and Apache.</li><li>Application servers.</li><li>Reverse proxies.</li><li>Server configuration and hardening.</li><li>SSH and remote administration.</li><li>Domain registration and DNS management.</li><li>SSL certificate management.</li><li>Storage and backup infrastructure.</li><li>Server resource management.</li><li>High availability and redundancy.</li><li>Infrastructure automation.</li><li>Disaster recovery.</li><li>Capacity planning.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>UNIX and Linux System Administration Handbook</i></b>, 5th ed. (2017), by Nemeth, Snyder, Hein, Whaley, Mackin.</li><li><b><i>The Practice of System and Network Administration</i></b>, 3rd ed. (2016), by Limoncelli, Hogan, Chalup.</li><li><b><i>NGINX Cookbook</i></b>, 3rd ed. (2024), by Derek DeJonghe.</li></ul><h2 data-sa=\"sa-cloud-computing-distributed-systems\">Cloud Computing &amp; Distributed Systems</h2><ul><li>Cloud computing fundamentals.</li><li>AWS, Microsoft Azure and Google Cloud.</li><li>Infrastructure as a Service (IaaS).</li><li>Platform as a Service (PaaS).</li><li>Software as a Service (SaaS).</li><li>Function as a Service (FaaS).</li><li>Virtual machines and hypervisors.</li><li>Containers and container orchestration.</li><li>Docker and Kubernetes.</li><li>Microservices architecture.</li><li>Distributed computing.</li><li>Distributed databases.</li><li>Message queues and event-driven architecture.</li><li>Service discovery.</li><li>Fault tolerance and resilience.</li><li>Scalability and horizontal/vertical scaling.</li><li>Edge and serverless computing.</li><li>Multi-cloud and hybrid-cloud architecture.</li><li>Cloud security and governance.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Cloud Computing: Concepts, Technology, Security, and Architecture</i></b>, 2nd ed. (2023), by Erl, Barceló Monroy.</li><li><b><i>Distributed Systems</i></b>, 4th ed. (2023), by van Steen, Tanenbaum.</li><li><b><i>Designing Data-Intensive Applications</i></b>, 2nd ed. (2026), by Kleppmann, Riccomini.</li><li><b><i>Kubernetes in Action</i></b>, 2nd ed. (2026), by Lukša, Conner.</li><li><b><i>Building Microservices</i></b>, 2nd ed. (2021), by Sam Newman.</li></ul><h2 data-sa=\"sa-devops-devsecops-site-reliability-engineering\">DevOps, DevSecOps &amp; Site Reliability Engineering</h2><ul><li>CI/CD pipelines.</li><li>Continuous integration and deployment.</li><li>Infrastructure as Code (IaC).</li><li>Configuration management.</li><li>Automated build and deployment.</li><li>Docker and Kubernetes operations.</li><li>Git workflows and branching strategies.</li><li>Terraform and Ansible.</li><li>Environment management (development, staging, production).</li><li>Monitoring and observability.</li><li>Centralized logging.</li><li>Metrics, tracing and alerting.</li><li>Incident management.</li><li>Reliability engineering.</li><li>Service Level Indicators, Objectives and Agreements (SLIs, SLOs, SLAs).</li><li>Performance and capacity optimization.</li><li>Release management and rollback strategies.</li><li>DevSecOps and security automation.</li><li>Backup, recovery and business continuity.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The DevOps Handbook</i></b>, 2nd ed. (2021), by Kim, Humble, Debois, Willis, Forsgren.</li><li><b><i>Site Reliability Engineering</i></b>, 1st ed. (2016, free online), by Beyer, Jones, Petoff, Murphy.</li><li><b><i>Terraform: Up and Running</i></b>, 3rd ed. (2022), by Yevgeniy Brikman.</li><li><b><i>Ansible: Up and Running</i></b>, 3rd ed. (2022), by Geerling, Hochstein, Moser.</li><li><b><i>Docker Deep Dive</i></b>, updated regularly, buy the latest, by Nigel Poulton.</li><li><b><i>Observability Engineering</i></b>, 1st ed. (2022), by Majors, Fong-Jones, Miranda.</li></ul><h2 data-sa=\"sa-embedded-iot-edge-systems\">Embedded, IoT &amp; Edge Systems</h2><ul><li>Embedded software architecture.</li><li>Microcontroller programming.</li><li>Real-time operating systems (RTOS).</li><li>Firmware development.</li><li>Hardware-software integration.</li><li>IoT communication protocols.</li><li>MQTT and CoAP.</li><li>Device authentication.</li><li>Secure firmware updates.</li><li>Edge computing.</li><li>Industrial control systems.</li><li>Operational Technology (OT) security.</li><li>Industrial IoT security.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Making Embedded Systems</i></b>, 2nd ed. (2024), by Elecia White.</li><li><b><i>Mastering the FreeRTOS Real Time Kernel</i></b>, free from FreeRTOS.org, by Richard Barry.</li><li><b><i>IoT and Edge Computing for Architects</i></b>, 2nd ed. (2020), by Perry Lea.</li><li><b><i>Practical IoT Hacking</i></b>, 1st ed. (2021), by Chantzis, Stais, Calderon, Deirmentzoglou, Woods.</li><li><b><i>Industrial Cybersecurity</i></b>, 2nd ed. (2021), by Pascal Ackerman.</li></ul><h1>Software Architecture &amp; Application Engineering</h1><h2 data-sa=\"sa-software-architecture-design\">Software Architecture &amp; Design</h2><ul><li>Software development lifecycle (SDLC).</li><li>Requirements engineering.</li><li>Functional and non-functional requirements.</li><li>Architectural patterns.</li><li>Monolithic and modular architecture.</li><li>Microservices and service-oriented architecture.</li><li>Event-driven architecture.</li><li>Domain-Driven Design (DDD).</li><li>Clean Architecture.</li><li>Hexagonal Architecture.</li><li>SOLID principles.</li><li>Design patterns and anti-patterns.</li><li>Separation of concerns.</li><li>Dependency injection.</li><li>Scalability and maintainability.</li><li>Legacy system architecture.</li><li>Reverse engineering and software reconstruction.</li><li>Technical documentation and architecture diagrams.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Fundamentals of Software Architecture</i></b>, 2nd ed. (2025), by Richards, Ford.</li><li><b><i>Mastering the Requirements Process</i></b>, 4th ed. (2024), by Robertson, Robertson.</li><li><b><i>Clean Architecture</i></b>, 1st ed. (2017), by Robert C. Martin.</li><li><b><i>Learning Domain-Driven Design</i></b>, 1st ed. (2021), by Vlad Khononov.</li><li><b><i>Head First Design Patterns</i></b>, 2nd ed. (2020), by Freeman, Robson.</li></ul><h2 data-sa=\"sa-web-development\">Web Development</h2><ul><li>HTML and semantic markup.</li><li>CSS and responsive design.</li><li>JavaScript and TypeScript.</li><li>Frontend frameworks (React, Vue, Angular).</li><li>Backend development.</li><li>Server-side rendering and static generation.</li><li>Full-stack development.</li><li>PHP, Node.js, Python, Java or .NET backends.</li><li>Routing and middleware.</li><li>Authentication and authorization.</li><li>Sessions and cookies.</li><li>Form handling and validation.</li><li>File uploads and storage.</li><li>WebSockets and real-time applications.</li><li>Progressive Web Applications (PWAs).</li><li>Browser architecture and rendering.</li><li>Cross-browser compatibility.</li><li>Accessibility and web standards.</li><li>Website performance optimization.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>CSS: The Definitive Guide</i></b>, 5th ed. (2023), by Meyer, Weyl.</li><li><b><i>Fluent React</i></b>, 1st ed. (2024), by Tejas Kumar.</li><li><b><i>Node.js Design Patterns</i></b>, 4th ed. (2025), by Casciaro, Mammino.</li><li><b><i>Web Browser Engineering</i></b>, 1st ed. (2025), by Panchekha, Harrelson.</li></ul><p><i>HTML, accessibility and web standards are best learned from the MDN Web Docs and the WHATWG and W3C specifications.</i></p><h2 data-sa=\"sa-application-development\">Application Development</h2><ul><li>Desktop application development.</li><li>Native mobile development (Android and iOS).</li><li>Cross-platform development.</li><li>Hybrid applications.</li><li>Progressive Web Applications.</li><li>Application lifecycle management.</li><li>Local and remote data storage.</li><li>Application state management.</li><li>Device APIs and hardware integration.</li><li>Notifications and background processing.</li><li>Application packaging and distribution.</li><li>Application permissions and sandboxing.</li><li>Offline-first architecture.</li><li>Application performance and optimization.</li><li>Reverse engineering and compatibility.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Android Programming: The Big Nerd Ranch Guide</i></b>, 5th ed. (2022), by Sills, Gardner, Marsicano, Stewart.</li><li><b><i>Kotlin in Action</i></b>, 2nd ed. (2024), by Aigner, Elizarov, Isakova, Jemerov.</li><li><b><i>iOS 18 Programming for Beginners</i></b>, 9th ed. (2024), by Sahar, Clayton.</li><li><b><i>Designing Data-Intensive Applications</i></b>, 2nd ed. (2026), by Kleppmann, Riccomini.</li></ul><p><i>Desktop and cross-platform toolkits change faster than books. Use the official Flutter, React Native, Electron or .NET MAUI documentation.</i></p><h2 data-sa=\"sa-ui-ux-product-interface-engineering\">UI/UX &amp; Product Interface Engineering</h2><ul><li>User research.</li><li>User psychology and behavior.</li><li>Information architecture.</li><li>User flows and journey mapping.</li><li>Wireframing and prototyping.</li><li>Interface design principles.</li><li>Design systems and component libraries.</li><li>Typography, color and visual hierarchy.</li><li>Responsive and adaptive interfaces.</li><li>Accessibility (WCAG).</li><li>Interaction design.</li><li>Usability testing.</li><li>Conversion Rate Optimization (CRO).</li><li>Frontend implementation of designs.</li><li>Design-to-development workflows.</li><li>Product analytics and user feedback.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>About Face</i></b>, 4th ed. (2014), by Cooper, Reimann, Cronin, Noessel.</li><li><b><i>Laws of UX</i></b>, 2nd ed. (2024), by Jon Yablonski.</li><li><b><i>Information Architecture</i></b>, 4th ed. (2015), by Rosenfeld, Morville, Arango.</li><li><b><i>Refactoring UI</i></b>, 1st ed. (2018), by Wathan, Schoger.</li><li><b><i>Interviewing Users</i></b>, 2nd ed. (2024), by Steve Portigal.</li></ul><h2 data-sa=\"sa-api-engineering-system-integration\">API Engineering &amp; System Integration</h2><ul><li>REST API architecture.</li><li>GraphQL.</li><li>SOAP and XML-based services.</li><li>gRPC.</li><li>Webhooks.</li><li>WebSockets.</li><li>API authentication and authorization.</li><li>OAuth 2.0 and OpenID Connect.</li><li>JWT and token management.</li><li>API versioning and documentation.</li><li>Rate limiting and throttling.</li><li>API gateways.</li><li>Request validation and serialization.</li><li>Idempotency and retry mechanisms.</li><li>Service-to-service communication.</li><li>Third-party integrations.</li><li>SDK development.</li><li>API security and lifecycle management.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The Design of Web APIs</i></b>, 2nd ed. (2025), by Arnaud Lauret.</li><li><b><i>API Design Patterns</i></b>, 1st ed. (2021), by JJ Geewax.</li><li><b><i>Mastering API Architecture</i></b>, 1st ed. (2022), by Gough, Bryant, Auburn.</li><li><b><i>API Security in Action</i></b>, 1st ed. (2020), by Neil Madden.</li><li><b><i>OAuth 2 in Action</i></b>, 1st ed. (2017), by Richer, Sanso.</li></ul><h2 data-sa=\"sa-database-engineering-data-management\">Database Engineering &amp; Data Management</h2><ul><li>Relational databases (PostgreSQL, MySQL).</li><li>Non-relational databases (MongoDB, Redis).</li><li>SQL and advanced querying.</li><li>Database normalization and denormalization.</li><li>Database schema design.</li><li>Indexing and query optimization.</li><li>Transactions and ACID properties.</li><li>Concurrency control and isolation levels.</li><li>Database replication.</li><li>Sharding and partitioning.</li><li>Caching strategies.</li><li>Database migrations.</li><li>Data modeling.</li><li>Data integrity and consistency.</li><li>Backup and restoration.</li><li>Data warehouses and data lakes.</li><li>ETL and ELT pipelines.</li><li>Database security and auditing.</li><li>Search engines and full-text search.</li><li>Vector databases and semantic search.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Database System Concepts</i></b>, 7th ed. (2019), by Silberschatz, Korth, Sudarshan.</li><li><b><i>Designing Data-Intensive Applications</i></b>, 2nd ed. (2026), by Kleppmann, Riccomini.</li><li><b><i>The Art of PostgreSQL</i></b>, 2nd ed. (2022), by Dimitri Fontaine.</li><li><b><i>High Performance MySQL</i></b>, 4th ed. (2021), by Botros, Tinley.</li><li><b><i>The Data Warehouse Toolkit</i></b>, 3rd ed. (2013), by Kimball, Ross.</li><li><b><i>AI-Powered Search</i></b>, 1st ed. (2025), by Grainger, Turnbull, Irwin.</li></ul><h1>Software Quality, Testing &amp; Performance</h1><h2 data-sa=\"sa-software-testing-quality-assurance\">Software Testing &amp; Quality Assurance</h2><ul><li>Unit testing.</li><li>Integration testing.</li><li>System testing.</li><li>End-to-end testing.</li><li>Functional testing.</li><li>Regression testing.</li><li>Smoke and sanity testing.</li><li>Acceptance testing.</li><li>Exploratory testing.</li><li>Test-driven development (TDD).</li><li>Behavior-driven development (BDD).</li><li>Automated testing.</li><li>Mocking and test doubles.</li><li>API testing.</li><li>UI testing.</li><li>Cross-browser and cross-device testing.</li><li>Load and stress testing.</li><li>Chaos engineering.</li><li>Static code analysis.</li><li>Software quality metrics.</li><li>Continuous testing.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Effective Software Testing</i></b>, 1st ed. (2022), by Maurício Aniche.</li><li><b><i>Unit Testing Principles, Practices, and Patterns</i></b>, 1st ed. (2020), by Vladimir Khorikov.</li><li><b><i>Full Stack Testing</i></b>, 1st ed. (2022), by Gayathri Mohan.</li><li><b><i>Chaos Engineering</i></b>, 1st ed. (2020), by Rosenthal, Jones.</li></ul><h3 data-sa=\"sa-software-reverse-engineering-legacy-systems\">Software Reverse Engineering &amp; Legacy Systems</h3><ul><li>Black-box software analysis.</li><li>White-box software analysis.</li><li>Protocol reverse engineering.</li><li>Binary analysis.</li><li>Legacy application maintenance.</li><li>Database and schema reconstruction.</li><li>API behavior reconstruction.</li><li>Software interoperability.</li><li>Compatibility engineering.</li><li>Migration and modernization.</li><li>Dependency mapping.</li><li>System behavior replication.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Working Effectively with Legacy Code</i></b>, 1st ed. (2004), by Michael Feathers.</li><li><b><i>Kill It with Fire</i></b>, 1st ed. (2021), by Marianne Bellotti.</li><li><b><i>Practical Binary Analysis</i></b>, 1st ed. (2018), by Dennis Andriesse.</li><li><b><i>The Ghidra Book</i></b>, 2nd ed. (2020), by Eagle, Nance.</li><li><b><i>Attacking Network Protocols</i></b>, 1st ed. (2017), by James Forshaw.</li></ul><h2 data-sa=\"sa-performance-engineering-optimization\">Performance Engineering &amp; Optimization</h2><ul><li>Algorithmic optimization.</li><li>CPU and memory profiling.</li><li>Database performance optimization.</li><li>Query analysis.</li><li>Network latency optimization.</li><li>Frontend rendering optimization.</li><li>Caching and cache invalidation.</li><li>Asynchronous processing.</li><li>Concurrency optimization.</li><li>Resource utilization.</li><li>Load testing and benchmarking.</li><li>Bottleneck identification.</li><li>Scalability testing.</li><li>Web performance metrics (Core Web Vitals).</li><li>High-performance computing fundamentals.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Systems Performance</i></b>, 2nd ed. (2020), by Brendan Gregg.</li><li><b><i>Performance Analysis and Tuning on Modern CPUs</i></b>, 2nd ed. (2024), by Denis Bakhvalov.</li><li><b><i>High Performance Browser Networking</i></b>, 1st ed. (2013, free online), by Ilya Grigorik.</li><li><b><i>High Performance Python</i></b>, 3rd ed. (2025), by Gorelick, Ozsvald.</li><li><b><i>Parallel and High Performance Computing</i></b>, 1st ed. (2021), by Robey, Zamora.</li></ul><h1>Cybersecurity Engineering</h1><h2 data-sa=\"sa-cybersecurity-fundamentals-security-architecture\">Cybersecurity Fundamentals &amp; Security Architecture</h2><ul><li>Cybersecurity principles and terminology.</li><li>Confidentiality, Integrity and Availability (CIA).</li><li>Threat modeling.</li><li>Attack surfaces and attack vectors.</li><li>Security architecture and design.</li><li>Defense in depth.</li><li>Zero Trust architecture.</li><li>Identity and Access Management (IAM).</li><li>Authentication and authorization.</li><li>Multi-factor authentication.</li><li>Privileged Access Management (PAM).</li><li>Security policies and governance.</li><li>Risk assessment and management.</li><li>Security auditing.</li><li>Cryptographic fundamentals.</li><li>Secure system configuration.</li><li>Security standards and frameworks (NIST, ISO 27001, CIS).</li><li>Privacy engineering and data protection.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Security Engineering</i></b>, 3rd ed. (2020), by Ross Anderson.</li><li><b><i>Computer Security: Principles and Practice</i></b>, 5th ed. (2023), by Stallings, Brown.</li><li><b><i>Threat Modeling: Designing for Security</i></b>, 1st ed. (2014), by Adam Shostack.</li><li><b><i>Zero Trust Networks</i></b>, 2nd ed. (2024), by Rais, Morillo, Gilman, Barth.</li></ul><h2 data-sa=\"sa-application-security-secure-software-development\">Application Security &amp; Secure Software Development</h2><ul><li>Secure Software Development Lifecycle (SSDLC).</li><li>Secure coding principles.</li><li>Input validation and output encoding.</li><li>Injection vulnerabilities.</li><li>Cross-Site Scripting (XSS).</li><li>Cross-Site Request Forgery (CSRF).</li><li>Server-Side Request Forgery (SSRF).</li><li>Broken access control.</li><li>Authentication and session vulnerabilities.</li><li>Insecure deserialization.</li><li>File upload vulnerabilities.</li><li>Path traversal.</li><li>Race conditions.</li><li>Memory corruption and buffer overflows.</li><li>API security.</li><li>Business logic vulnerabilities.</li><li>Dependency and supply-chain vulnerabilities.</li><li>Secrets management.</li><li>Secure configuration.</li><li>Security code reviews.</li><li>Software composition analysis.</li><li>OWASP Top 10 and OWASP API Security Top 10.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Web Application Security</i></b>, 2nd ed. (2024), by Andrew Hoffman.</li><li><b><i>Designing Secure Software</i></b>, 1st ed. (2021), by Loren Kohnfelder.</li><li><b><i>The Art of Software Security Assessment</i></b>, 1st ed. (2006), by Dowd, McDonald, Schuh.</li><li><b><i>Software Supply Chain Security</i></b>, 1st ed. (2024), by Cassie Crossley.</li></ul><p><i>Pair these with the current OWASP Top 10, OWASP API Security Top 10 and the OWASP Cheat Sheet Series.</i></p><h2 data-sa=\"sa-network-infrastructure-security\">Network &amp; Infrastructure Security</h2><ul><li>Network security architecture.</li><li>Firewall configuration and management.</li><li>IDS and IPS.</li><li>Network segmentation.</li><li>Endpoint security.</li><li>Endpoint Detection and Response (EDR).</li><li>Secure remote access.</li><li>VPN security.</li><li>Wireless security.</li><li>DNS security.</li><li>TLS and certificate security.</li><li>Server hardening.</li><li>Linux and Windows security.</li><li>Active Directory security.</li><li>Cloud infrastructure security.</li><li>Container and Kubernetes security.</li><li>Infrastructure vulnerability management.</li><li>Patch management.</li><li>Network security monitoring.</li><li>Security information and event management (SIEM).</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Defensive Security Handbook</i></b>, 2nd ed. (2024), by Brotherston, Berlin, Reyor.</li><li><b><i>The Practice of Network Security Monitoring</i></b>, 1st ed. (2013), by Richard Bejtlich.</li><li><b><i>Windows Security Internals</i></b>, 1st ed. (2024), by James Forshaw.</li><li><b><i>Practical Cloud Security</i></b>, 2nd ed. (2023), by Chris Dotson.</li><li><b><i>Hacking Kubernetes</i></b>, 1st ed. (2021), by Martin, Hausenblas.</li></ul><h2 data-sa=\"sa-penetration-testing-vulnerability-research\">Penetration Testing &amp; Vulnerability Research</h2><ul><li>Penetration testing methodologies.</li><li>Rules of engagement and authorization.</li><li>Reconnaissance and asset discovery.</li><li>Attack surface assessment.</li><li>Vulnerability identification and validation.</li><li>Web application security testing.</li><li>API security testing.</li><li>Network security assessment.</li><li>Wireless security assessment.</li><li>Operating system security assessment.</li><li>Cloud security assessment.</li><li>Identity and access security assessment.</li><li>Vulnerability classification and prioritization.</li><li>CVE and CVSS.</li><li>Common misconfigurations.</li><li>Exploitability assessment.</li><li>Security proof-of-concept development in controlled environments.</li><li>Responsible vulnerability disclosure.</li><li>Security reporting and remediation verification.</li><li>Red-team and blue-team methodologies.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Gray Hat Hacking</i></b>, 6th ed. (2022), by Harper, Linn, Sims, Baucom, Tejeda, Fernandez, Frost.</li><li><b><i>The Web Application Hacker's Handbook</i></b>, 2nd ed. (2011), by Stuttard, Pinto.</li><li><b><i>Bug Bounty Bootcamp</i></b>, 1st ed. (2021), by Vickie Li.</li><li><b><i>Hacking APIs</i></b>, 1st ed. (2022), by Corey Ball.</li></ul><h2 data-sa=\"sa-malware-analysis-reverse-engineering\">Malware Analysis &amp; Reverse Engineering</h2><ul><li>Executable file formats.</li><li>Assembly and machine code analysis.</li><li>Static binary analysis.</li><li>Dynamic analysis in isolated environments.</li><li>Debugging and disassembly.</li><li>Software reverse engineering.</li><li>Program behavior analysis.</li><li>Memory and process analysis.</li><li>Windows and Linux executable internals.</li><li>Malware classification.</li><li>Indicators of Compromise (IOCs).</li><li>Behavioral analysis.</li><li>Software unpacking and obfuscation concepts.</li><li>Software protection and anti-tampering.</li><li>Binary vulnerability research.</li><li>Firmware analysis.</li><li>Supply-chain threat analysis.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Practical Malware Analysis</i></b>, 1st ed. (2012), by Sikorski, Honig.</li><li><b><i>Mastering Malware Analysis</i></b>, 2nd ed. (2022), by Kleymenov, Thabet.</li><li><b><i>Evasive Malware</i></b>, 1st ed. (2024), by Kyle Cucci.</li><li><b><i>The Hardware Hacking Handbook</i></b>, 1st ed. (2021), by van Woudenberg, O'Flynn.</li></ul><h2 data-sa=\"sa-digital-forensics-incident-response\">Digital Forensics &amp; Incident Response</h2><ul><li>Digital forensics methodology.</li><li>Evidence acquisition and preservation.</li><li>Chain of custody.</li><li>Disk and filesystem forensics.</li><li>Memory forensics.</li><li>Network forensics.</li><li>Log analysis.</li><li>Windows and Linux forensic investigation.</li><li>Browser and application artifacts.</li><li>Database forensics.</li><li>Cloud forensics.</li><li>Mobile device forensics.</li><li>Timeline reconstruction.</li><li>Incident detection and triage.</li><li>Incident containment and recovery.</li><li>Root-cause analysis.</li><li>Threat intelligence integration.</li><li>Security incident documentation.</li><li>Post-incident analysis.</li><li>Disaster recovery and business continuity.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Digital Forensics and Incident Response</i></b>, 4th ed. (2025), by Gerard Johansen.</li><li><b><i>The Art of Memory Forensics</i></b>, 1st ed. (2014), by Ligh, Case, Levy, Walters.</li><li><b><i>File System Forensic Analysis</i></b>, 1st ed. (2005), by Brian Carrier.</li><li><b><i>Practical Linux Forensics</i></b>, 1st ed. (2021), by Bruce Nikkel.</li><li><b><i>Practical Mobile Forensics</i></b>, 4th ed. (2020), by Tamma, Skulkin, Mahalik, Bommisetty.</li></ul><h2 data-sa=\"sa-advanced-security-research-threat-intelligence\">Advanced Security Research &amp; Threat Intelligence</h2><ul><li>Threat intelligence collection and analysis.</li><li>Adversary behavior frameworks (MITRE ATT&amp;CK).</li><li>Threat hunting.</li><li>Security research methodologies.</li><li>Vulnerability disclosure and coordination.</li><li>Exploit mitigation research.</li><li>Secure boot and hardware trust.</li><li>Side-channel attack concepts.</li><li>Memory safety.</li><li>Application sandboxing.</li><li>Attack simulation in authorized environments.</li><li>Security architecture evaluation.</li><li>Emerging cyber threats.</li><li>Security research reporting.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Practical Threat Intelligence and Data-Driven Threat Hunting</i></b>, 2nd ed. (2026), by Valentina Costa-Gazcón.</li><li><b><i>Intelligence-Driven Incident Response</i></b>, 2nd ed. (2023), by Roberts, Brown.</li><li><b><i>Building Secure and Reliable Systems</i></b>, 1st ed. (2020, free online), by Adkins, Beyer, Blankinship, Lewandowski, Oprea, Stubblefield.</li><li><b><i>The Hardware Hacking Handbook</i></b>, 1st ed. (2021), by van Woudenberg, O'Flynn.</li></ul><h2 data-sa=\"sa-cybersecurity-compliance-governance\">Cybersecurity Compliance &amp; Governance</h2><ul><li>Privacy by design.</li><li>Data protection engineering.</li><li>GDPR implementation.</li><li>Data classification.</li><li>Data minimization.</li><li>Consent management.</li><li>Data residency and sovereignty.</li><li>Digital identity.</li><li>Intellectual property and software licensing.</li><li>Open-source compliance.</li><li>Software liability.</li><li>Cybersecurity governance.</li><li>Regulatory compliance.</li><li>Third-party risk management.</li><li>Security policies and audit documentation.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The EU General Data Protection Regulation (GDPR): A Practical Guide</i></b>, 2nd ed. (2024), by Voigt, von dem Bussche.</li><li><b><i>Strategic Privacy by Design</i></b>, 2nd ed. (2022), by R. Jason Cronk.</li><li><b><i>Data Privacy: A Runbook for Engineers</i></b>, 1st ed. (2022), by Nishant Bhajaria.</li><li><b><i>IT Governance: An International Guide to Data Security and ISO 27001/ISO 27002</i></b>, 8th ed. (2024), by Calder, Watkins.</li><li><b><i>Open (Source) for Business</i></b>, 3rd ed. (2020), by Heather Meeker.</li></ul><h1>Cryptography, Data &amp; Intelligent Systems</h1><h2 data-sa=\"sa-cryptography-information-security\">Cryptography &amp; Information Security</h2><ul><li>Symmetric encryption (AES and related algorithms).</li><li>Asymmetric encryption (RSA, ECC).</li><li>Hashing algorithms (SHA-2, SHA-3).</li><li>Digital signatures.</li><li>Public Key Infrastructure (PKI).</li><li>Certificates and key management.</li><li>Key exchange protocols.</li><li>Secure random number generation.</li><li>Password hashing and salting.</li><li>Message Authentication Codes (MACs).</li><li>End-to-end encryption.</li><li>Secure communication protocols.</li><li>Cryptographic implementation vulnerabilities.</li><li>Post-quantum cryptography.</li><li>Zero-Knowledge Proofs (ZKPs).</li><li>Multi-party computation (MPC).</li><li>Hardware Security Modules (HSMs).</li><li>Trusted Execution Environments (TEEs).</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Serious Cryptography</i></b>, 2nd ed. (2024), by Jean-Philippe Aumasson.</li><li><b><i>Real-World Cryptography</i></b>, 1st ed. (2021), by David Wong.</li><li><b><i>Bulletproof TLS and PKI</i></b>, 2nd ed. (2022), by Ivan Ristić.</li><li><b><i>Proofs, Arguments, and Zero-Knowledge</i></b>, 1st ed. (2022, free online), by Justin Thaler.</li><li><b><i>A Pragmatic Introduction to Secure Multi-Party Computation</i></b>, 1st ed. (2018, free online), by Evans, Kolesnikov, Rosulek.</li></ul><h2 data-sa=\"sa-data-engineering-analytics-artificial-intelligence\">Data Engineering, Analytics &amp; Artificial Intelligence</h2><ul><li>Data structures and data processing.</li><li>Data collection and ingestion.</li><li>Data cleaning and transformation.</li><li>ETL/ELT architecture.</li><li>Data pipelines and workflow orchestration.</li><li>Data warehouses and data lakes.</li><li>Statistical analysis.</li><li>Exploratory data analysis.</li><li>Data visualization.</li><li>Business intelligence.</li><li>Predictive analytics.</li><li>Machine learning fundamentals.</li><li>Deep learning fundamentals.</li><li>Neural networks.</li><li>Natural Language Processing (NLP).</li><li>Large Language Models (LLMs).</li><li>Retrieval-Augmented Generation (RAG).</li><li>AI agents and automation.</li><li>Model deployment and MLOps.</li><li>AI application integration.</li><li>AI security and adversarial ML.</li><li>Data privacy and governance.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Fundamentals of Data Engineering</i></b>, 1st ed. (2022), by Reis, Housley.</li><li><b><i>Python for Data Analysis</i></b>, 3rd ed. (2022), by Wes McKinney.</li><li><b><i>Storytelling with Data</i></b>, 1st ed. (2015), by Cole Nussbaumer Knaflic.</li><li><b><i>Hands-On Machine Learning with Scikit-Learn and PyTorch</i></b>, PyTorch edition (2025), by Aurélien Géron.</li><li><b><i>Deep Learning: Foundations and Concepts</i></b>, 1st ed. (2024), by Bishop, Bishop.</li><li><b><i>AI Engineering</i></b>, 1st ed. (2025), by Chip Huyen.</li></ul><h1>Financial Technology &amp; Financial Systems</h1><h2 data-sa=\"sa-financial-technology-fintech-engineering\">Financial Technology (FinTech) Engineering</h2><p>This domain deserves particular attention because financial applications have requirements that ordinary software applications often do not: financial accuracy, transaction integrity, regulatory compliance, auditability and high security.</p><h3 data-sa=\"sa-financial-systems-concepts\">Financial Systems &amp; Concepts</h3><ul><li>Financial markets and market infrastructure.</li><li>Banking systems and banking architecture.</li><li>Payment systems and payment processing.</li><li>Accounting fundamentals.</li><li>Double-entry bookkeeping.</li><li>Financial statements and reporting.</li><li>Assets, liabilities and equity.</li><li>Cash flow management.</li><li>Interest rates and compounding.</li><li>Foreign exchange (Forex).</li><li>Securities and financial instruments.</li><li>Bonds, equities and derivatives.</li><li>Trading and brokerage infrastructure.</li><li>Risk management.</li><li>Settlement and clearing.</li><li>Liquidity management.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The Economics of Money, Banking and Financial Markets</i></b>, 13th ed. (2022), by Frederic S. Mishkin.</li><li><b><i>Financial Accounting with International Financial Reporting Standards</i></b>, 5th ed. (2022), by Weygandt, Kimmel, Kieso.</li><li><b><i>Investments</i></b>, 13th ed. (2024), by Bodie, Kane, Marcus.</li><li><b><i>Options, Futures, and Other Derivatives</i></b>, 11th ed. (2021), by John C. Hull.</li><li><b><i>Risk Management and Financial Institutions</i></b>, 6th ed. (2023), by John C. Hull.</li></ul><h3 data-sa=\"sa-payment-engineering\">Payment Engineering</h3><ul><li>Payment gateways and processors.</li><li>Merchant acquiring.</li><li>Card payment infrastructure.</li><li>Card authorization and settlement.</li><li>Payment orchestration.</li><li>Recurring payments and subscriptions.</li><li>Refunds, chargebacks and disputes.</li><li>Payment reconciliation.</li><li>Payment routing.</li><li>International payment systems.</li><li>SEPA and SWIFT.</li><li>Open Banking and PSD2/PSD3 concepts.</li><li>Strong Customer Authentication (SCA).</li><li>ISO 20022.</li><li>PCI DSS.</li><li>Fraud detection and prevention.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The Anatomy of the Swipe</i></b>, 1st ed. (2020), by Ahmed Siddiqui.</li><li><b><i>Payment Systems: From the Salt Mines to the Board Room</i></b>, 1st ed. (2008), by Rambure, Nacamuli.</li><li><b><i>Practical Fraud Prevention</i></b>, 1st ed. (2022), by Saporta, Maraney.</li></ul><p><i>No current book covers the European rules in depth. Use the primary sources: EPC SEPA rulebooks, EBA technical standards for SCA, the ISO 20022 message catalogue, PCI DSS v4 from the PCI Security Standards Council.</i></p><h3 data-sa=\"sa-financial-application-development\">Financial Application Development</h3><ul><li>Digital banking applications.</li><li>Personal finance management systems.</li><li>Budgeting and accounting software.</li><li>Invoicing and billing platforms.</li><li>Financial dashboards.</li><li>Trading applications.</li><li>Brokerage platforms.</li><li>Portfolio management systems.</li><li>Investment tracking systems.</li><li>Loan and credit management platforms.</li><li>Insurance technology (InsurTech).</li><li>Financial APIs and Open Banking integrations.</li><li>Automated financial workflows.</li><li>Financial data aggregation.</li><li>Multi-currency accounting.</li><li>Transaction categorization and reconciliation.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Build Financial Software with Generative AI (From Scratch)</i></b>, 1st ed. (2025), by Kardell, Brouwer.</li><li><b><i>Fundamentals of Software Engineering for Fintechs</i></b>, 2026, self-published on Leanpub, by Geison Goes.</li><li><b><i>Designing Data-Intensive Applications</i></b>, 2nd ed. (2026), by Kleppmann, Riccomini.</li></ul><p><i>This area has no definitive textbook. These three cover the engineering core; product-specific knowledge comes from provider API documentation.</i></p><h3 data-sa=\"sa-financial-data-market-infrastructure\">Financial Data &amp; Market Infrastructure</h3><ul><li>Real-time market data feeds.</li><li>Market data APIs.</li><li>Financial data modeling.</li><li>Time-series databases.</li><li>Order management systems (OMS).</li><li>Execution management systems (EMS).</li><li>Order books and matching engines.</li><li>Market microstructure.</li><li>Trade lifecycle management.</li><li>Portfolio analytics.</li><li>Financial risk modeling.</li><li>Fraud analytics.</li><li>Transaction monitoring.</li><li>Financial reporting systems.</li><li>Data integrity and audit trails.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Trading and Exchanges</i></b>, 1st ed. (2003), by Larry Harris.</li><li><b><i>Building Low Latency Applications with C++</i></b>, 1st ed. (2023), by Sourav Ghosh.</li><li><b><i>Market Microstructure in Practice</i></b>, 2nd ed. (2018), by Lehalle, Laruelle.</li><li><b><i>Fraud Analytics Using Descriptive, Predictive, and Social Network Techniques</i></b>, 1st ed. (2015), by Baesens, Van Vlasselaer, Verbeke.</li></ul><h3 data-sa=\"sa-blockchain-decentralized-finance\">Blockchain &amp; Decentralized Finance</h3><ul><li>Blockchain architecture.</li><li>Distributed ledgers.</li><li>Consensus mechanisms.</li><li>Cryptocurrencies and digital assets.</li><li>Wallet architecture.</li><li>Public and private keys.</li><li>Smart contract development.</li><li>Solidity and EVM.</li><li>Smart contract security.</li><li>Decentralized applications (dApps).</li><li>Decentralized exchanges (DEXs).</li><li>Automated Market Makers (AMMs).</li><li>DeFi lending and borrowing.</li><li>Tokenization of real-world assets.</li><li>Stablecoins.</li><li>Oracles and cross-chain communication.</li><li>Layer 1 and Layer 2 networks.</li><li>Blockchain analytics.</li><li>Blockchain forensics.</li><li>Digital asset custody.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Mastering Ethereum</i></b>, 2nd ed. (2025), by Parisi, Mazza, Pozzolini, Wood, Antonopoulos.</li><li><b><i>Mastering Bitcoin</i></b>, 3rd ed. (2023), by Antonopoulos, Harding.</li><li><b><i>DeFi and the Future of Finance</i></b>, 1st ed. (2021), by Harvey, Ramachandran, Santoro.</li><li><b><i>Investigating Cryptocurrencies</i></b>, 1st ed. (2018), by Nick Furneaux.</li></ul><h3 data-sa=\"sa-financial-security-compliance-regulation\">Financial Security, Compliance &amp; Regulation</h3><ul><li>Anti-Money Laundering (AML).</li><li>Know Your Customer (KYC).</li><li>Know Your Business (KYB).</li><li>Transaction monitoring.</li><li>Fraud detection.</li><li>Sanctions screening.</li><li>Financial identity verification.</li><li>GDPR and data protection.</li><li>PSD2 and PSD3.</li><li>MiCA and digital asset regulation.</li><li>DORA and operational resilience.</li><li>PCI DSS.</li><li>Financial audit requirements.</li><li>Regulatory reporting.</li><li>Data retention and traceability.</li><li>Financial risk and operational risk.</li><li>Secure financial transaction architecture.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Mastering Anti-Money Laundering and Counter-Terrorist Financing</i></b>, 2nd ed. (2020), by Tim Parkman.</li><li><b><i>The EU Law on Crypto-Assets</i></b>, 1st ed. (2025), by Zetzsche, Woxholth.</li><li><b><i>DORA: Interpreting the EU's Digital Operational Resilience Act</i></b>, 1st ed. (2024), by Paul Lambert.</li><li><b><i>The EU General Data Protection Regulation (GDPR): A Practical Guide</i></b>, 2nd ed. (2024), by Voigt, von dem Bussche.</li></ul><p><i>PSD3 and the new EU AML package are recent, so read the official texts on EUR-Lex alongside these books.</i></p><h1>Digital Business, Web Visibility &amp; Product Commercialization</h1><p>These are not strictly software engineering disciplines, but they are important for an engineer who intends to build, operate and commercialize successful software products.</p><h2 data-sa=\"sa-seo-aeo-digital-discoverability\">SEO, AEO &amp; Digital Discoverability</h2><h3 data-sa=\"sa-search-engine-optimization-seo\">Search Engine Optimization (SEO)</h3><ul><li>Search engine architecture and crawling.</li><li>Indexing and ranking fundamentals.</li><li>Keyword research and search intent.</li><li>Technical SEO.</li><li>On-page SEO.</li><li>Off-page SEO and link authority.</li><li>Content architecture.</li><li>Internal linking.</li><li>Structured data and Schema.org.</li><li>XML sitemaps and robots.txt.</li><li>Canonicalization.</li><li>Core Web Vitals.</li><li>Mobile SEO.</li><li>International and multilingual SEO.</li><li>Local SEO.</li><li>E-commerce SEO.</li><li>SEO analytics and auditing.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>The Art of SEO</i></b>, 4th ed. (2023), by Enge, Spencer, Stricchiola.</li><li><b><i>Introduction to Information Retrieval</i></b>, 1st ed. (2008, free online), by Manning, Raghavan, Schütze.</li></ul><h3 data-sa=\"sa-answer-engine-optimization-aeo-generative-engine-optimization-geo\">Answer Engine Optimization (AEO) &amp; Generative Engine Optimization (GEO)</h3><ul><li>Answer engine behavior.</li><li>Generative search visibility.</li><li>Entity optimization.</li><li>Knowledge graphs.</li><li>Structured and machine-readable content.</li><li>Semantic search.</li><li>Topical authority.</li><li>Content credibility and source attribution.</li><li>AI search indexing and discoverability.</li><li>Brand visibility across AI-generated answers.</li><li>Citation and reference optimization.</li><li>Monitoring AI search visibility.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Answer Engine Optimization</i></b>, 1st ed. (2026), by Rodrigo Stockebrand.</li><li><b><i>Generative Engine Optimization: The Definitive Guide to AI SEO</i></b>, 1st ed. (2026), by Ross Hudgens.</li><li><b><i>AI-Powered Search</i></b>, 1st ed. (2025), by Grainger, Turnbull, Irwin.</li></ul><h3 data-sa=\"sa-web-analytics\">Web Analytics</h3><ul><li>Google Analytics and equivalent platforms.</li><li>Google Search Console.</li><li>Conversion tracking.</li><li>Attribution modeling.</li><li>User behavior analytics.</li><li>Funnel analysis.</li><li>Performance measurement.</li><li>SEO reporting and experimentation.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Learning Google Analytics</i></b>, 1st ed. (2022), by Mark Edmondson.</li><li><b><i>Lean Analytics</i></b>, 1st ed. (2013), by Croll, Yoskovitz.</li><li><b><i>Trustworthy Online Controlled Experiments</i></b>, 1st ed. (2020), by Kohavi, Tang, Xu.</li></ul><h2 data-sa=\"sa-e-commerce-saas-digital-product-engineering\">E-commerce, SaaS &amp; Digital Product Engineering</h2><ul><li>E-commerce architecture.</li><li>Shopping cart and checkout systems.</li><li>Product and inventory management.</li><li>Order management.</li><li>Customer relationship management (CRM).</li><li>Enterprise Resource Planning (ERP).</li><li>SaaS architecture.</li><li>Multi-tenant applications.</li><li>Subscription management.</li><li>Billing systems.</li><li>Customer onboarding.</li><li>User account management.</li><li>Licensing and entitlement systems.</li><li>Digital marketplaces.</li><li>Business process automation.</li><li>Workflow engines.</li><li>Headless commerce.</li><li>Content Management Systems (CMS).</li><li>Customer support systems.</li><li>Product analytics.</li><li>Software monetization.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>E-commerce: Business, Technology, Society</i></b>, updated annually, buy the latest, by Laudon, Traver.</li><li><b><i>Building Multi-Tenant SaaS Architectures</i></b>, 1st ed. (2024), by Tod Golding.</li><li><b><i>Fundamentals of Business Process Management</i></b>, 2nd ed. (2018), by Dumas, La Rosa, Mendling, Reijers.</li><li><b><i>Monetizing Innovation</i></b>, 1st ed. (2016), by Ramanujam, Tacke.</li></ul><h2 data-sa=\"sa-business-product-technology-management\">Business, Product &amp; Technology Management</h2><ul><li>Business models and revenue models.</li><li>Business analysis.</li><li>Product management.</li><li>Market and competitor research.</li><li>Requirements gathering.</li><li>Product-market fit.</li><li>Minimum Viable Products (MVPs).</li><li>Project management.</li><li>Agile and Scrum.</li><li>Kanban.</li><li>Software estimation and budgeting.</li><li>Technical leadership.</li><li>Team management.</li><li>Technical documentation.</li><li>Vendor and third-party management.</li><li>Software licensing.</li><li>Intellectual property.</li><li>Technology strategy.</li><li>Cost optimization.</li><li>Software maintenance and lifecycle management.</li></ul><p><b>Recommended Books</b></p><ul class=\"books\"><li><b><i>Business Model Generation</i></b>, 1st ed. (2010), by Osterwalder, Pigneur.</li><li><b><i>Inspired</i></b>, 2nd ed. (2017), by Marty Cagan.</li><li><b><i>Essential Scrum</i></b>, 1st ed. (2012), by Kenneth Rubin.</li><li><b><i>Software Estimation</i></b>, 1st ed. (2006), by Steve McConnell.</li><li><b><i>The Manager's Path</i></b>, 1st ed. (2017), by Camille Fournier.</li><li><b><i>Cloud FinOps</i></b>, 2nd ed. (2023), by Storment, Fuller.</li></ul>";
+/* Study task: h2 and h3 headings are checkable subareas. Their checks live outside the task's
+   days, in D.studyChecks, so they carry over to every following Study task. */
+const SA_SEL='h2,h3';
+const saSlug=t=>'sa-'+(String(t).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||uid());
+const saKey=h=>h.dataset.sa||saSlug(h.textContent);
+const saHeads=root=>[...root.querySelectorAll(SA_SEL)].filter(h=>h.textContent.trim());
+function saCountText(html){const d=document.createElement('div');d.innerHTML=html||'';const hs=saHeads(d);return `${hs.filter(h=>D.studyChecks[saKey(h)]).length} of ${hs.length} subareas checked`}
+function normStudy(html){
+  const d=document.createElement('div');d.innerHTML=html||'';const seen=new Set();
+  saHeads(d).forEach(h=>{let k=h.dataset.sa||saSlug(h.textContent);if(seen.has(k)){const b=saSlug(h.textContent);k=b;let n=2;while(seen.has(k))k=`${b}-${n++}`}seen.add(k);h.dataset.sa=k});
+  return d.innerHTML;
+}
+function saButton(key,on){return `<button class="sa-check" data-act="sa-toggle" data-sa="${esc(key)}" aria-pressed="${on}" aria-label="${on?'Mark subarea as not done':'Mark subarea as done'}">${ic(on?'circleCheck':'circle')}</button>`}
+function decorateStudy(root){
+  root.classList.add('is-study');
+  saHeads(root).forEach(h=>{const key=saKey(h),on=!!D.studyChecks[key];h.classList.add('sa-head');h.classList.toggle('is-done',on);h.innerHTML=saButton(key,on)+`<span class="sa-t">${h.innerHTML}</span>`;saDim(h,on)});
+}
+/* A checked subarea dims what sits under it, up to the next heading. */
+function saDim(h,on){let n=h.nextElementSibling;while(n&&!n.matches('h1,h2,h3')){n.classList.toggle('sa-dim',on);n=n.nextElementSibling}}
+function toggleSubarea(btn){
+  const key=btn.dataset.sa,on=!D.studyChecks[key];
+  if(on)D.studyChecks[key]=true;else delete D.studyChecks[key];
+  save();
+  const head=btn.closest('.sa-head');head.classList.toggle('is-done',on);saDim(head,on);
+  btn.outerHTML=saButton(key,on);
+  if(on)head.querySelector('.sa-check').classList.add('sa-pop');
+  const v=S.view,c=$('#saCount');if(c&&v.kind==='task')c.textContent=saCountText(viewOf('task',v.id).description);
+}
+
+const STUDY_INTRO='<p>Study in depth the principles of software engineering and financial technologies. Note down important ideas, definitions and principles, afterwards write down everything you have studied as if you would explain to someone with no previous expertise in this area.</p>';
+/* The standard tasks. A day note in brackets at the end of a list item or heading,
+   like (mon, wed) or (mon-sat), shows it only on those days. */
+function stdTasks(T){
+  const firstOn=days=>{for(let i=0;i<7;i++){const d=addDays(T,i);if(days.includes(pd(d).getDay()))return d}return T};
+  const grow=(b,fr,start)=>`<span class="cmp" contenteditable="false" data-base="${b}" data-factor="+ 2" data-every="2" data-freq="${esc(JSON.stringify(fr))}" data-start="${start}">${b}</span>`;
+  const routine=days=>{const fr={type:'custom',days},st=firstOn(days);return {r:b=>grow(b,fr,st),l:b=>grow(b,{type:'weekly'},st)}};
+  const list=a=>`<ul class="dash">${a.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  const P=x=>`<p>${x}</p>`;
+  const meal=end=>P(`Eat a whole nutritious meal, rich in nutrients, which totals in 50 grams of protein, 115 grams of carbohydrates, 25 grams of fat and 850 calories. Hydrate well and drink till the next meal at least 1 liter of water. Avoid sugar, excessive salt, alcohol and non-whole foods. Eat slowly, with no distractions and after finishing your meal ${end}`);
+  const core=r=>[P(`Neck bridges 1 × ${r(10)}`),P(`Hanging leg raises 1 × ${r(10)}`),P(`Hanging knees in twists 1 × ${r(10)}`),P(`Hyper-extensions 1 × ${r(10)}`)].join('');
+  const sprint=l=>P(`Run in a normal pace, then sprint the last 100 meters. Repeat ${l(5)} times.`);
+  const a=routine([1,5]),b=routine([3,0]),c=routine([2,6]);
+  const workout=P('Train hard for an hour, prioritizing movement quality and intensity, the maximum rest time being one minute. Afterwards stretch well, wash your hands and face, apply sunscreen, deodorant and perfume.')
+    +'<h3>(mon, fri)</h3>'+sprint(a.l)+P(`Handstand push ups 1 × ${a.r(10)}`)+P(`Pull ups 1 × ${a.r(10)}`)+P(`Push ups 1 × ${a.r(24)}`)+P(`Body rows 1 × ${a.r(20)}`)+P(`Dips 1 × ${a.r(14)}`)+P(`Chin ups 1 × ${a.r(10)}`)+core(a.r)
+    +'<h3>(wed, sun)</h3>'+sprint(b.l)+P(`Pistol squats 1 × ${b.r(6)}`)+P(`Nordic curls 1 × ${b.r(6)}`)+P(`Archer squats 1 × ${b.r(14)}`)+P(`Single leg hip thrusts 1 x ${b.r(14)}`)+P(`Leg extensions 1 × ${b.r(20)}`)+P(`Single leg calves raises 1 × ${b.r(20)}`)+core(b.r)
+    +'<h3>(tue, sat)</h3>'+P(`Swim breast-stroke 100 meters, then freestyle. Repeat ${c.l(4)} times.`);
+  const DAILY={type:'daily'},MONSAT={type:'custom',days:[1,2,3,4,5,6]};
+  const items=[
+    ['Wake up',P('Get a full 8 hour sleep, then upon waking up avoid all screen time for an hour and get as much sun light as possible. After going to the bathroom, weight yourself and write it down.'),DAILY],
+    ['Planning',P("Plan today's activities and meals based on your current goals and expectations of the day."),DAILY],
+    ['Readjust',P('Modify daily macro goals based on the average weekly weight measured last week.'),{type:'custom',days:[0]}],
+    ['Morning hygiene',list(['Massage your scalp for 3 minutes (mon, wed, fri, sun)','wash your hair (wed, fri, sun)','wash your hair with the medicinal shampoo (mon)','Wash your hands and cleanse your face','brush your teeth and scrape your tongue','shave your facial hair (mon, wed, fri, sun)','pluck out unwanted hairs and trim your nasal hair (sun)','massage your face, apply your treatment serum and moisturizer','Comb your hair and style it','Moisturize and apply antiperspirant and perfume']),DAILY],
+    ['Physical training',workout,{type:'custom',days:[1,2,3,5,6,0]}],
+    ['Breakfast',meal('take a 15 minute walk.'),DAILY],
+    ['Study',STUDY_INTRO+STUDY_HTML,MONSAT,true],
+    ['Lunch',meal('take a 15 minute walk.'),DAILY],
+    ['Work',P('Work intensely on the things that need to get done towards achieving your goals in your financial development path. Avoid distractions and focus specifically on practical steps and real measurable progress.'),MONSAT],
+    ['Dinner',meal('take a long walk completing your steps count to 15 thousand steps.'),DAILY],
+    ['Evening hygiene',list(['Trim your body hair and wash your body (mon, wed, fri, sun)','trim your nails and clean your ears (sun)','wash your hands and cleanse your face','brush your teeth and scrape your tongue','Massage your scalp for 3 minutes (mon, wed, fri, sun)','Massage your face and apply moisturizer','Iron and prepare your clothes for the next day']),DAILY],
+    ['Go to sleep',P('Avoid all screen time and bright lights an hour prior to going to bed and wear blue-light filtering glasses 2 hours prior to going to bed.'),DAILY]
+  ];
+  return items.map(([title,description,freq,study],i)=>({id:uid(),title,time:'',duration:0,freq,from:T,until:null,skip:[],ovr:{},done:{},description,order:i+1,...(study?{study:true}:{})}));
+}
+/* The old sample items, recognised only while they are still unedited. */
+const OLD_SAMPLES={tasks:[['Morning routine','<ul><li>Glass of water'],['Deep work','<p>One focused block'],['Workout','<h2>Upper body'],['Read',''],['Plan tomorrow','']],goals:[['Emergency fund','<p>Put a fixed amount'],['Run a half marathon','']],events:[['Dentist appointment',''],['Dinner with friends','']]};
+function installStandard(){
+  Object.entries(OLD_SAMPLES).forEach(([k,list])=>{D[k]=D[k].filter(o=>!list.some(([t,p])=>o.title===t&&(p?(o.description||'').startsWith(p):!o.description)))});
+  const std=stdTasks(todayISO()),titles=new Set(D.tasks.map(t=>t.title)),sd=std.find(t=>t.study);
+  const studies=D.tasks.filter(t=>t.study);
+  studies.forEach(t=>{t.order=sd.order;t.freq=structuredClone(sd.freq);if((t.description||'').indexOf('Study in depth the principles')<0)t.description=STUDY_INTRO+(t.description||'')});
+  std.forEach(s=>{if(s.study?!studies.length:!titles.has(s.title))D.tasks.push(s)});
+}
+/* Tasks made of day-specific blocks show the days of the block on screen. */
+function repeatText(base,desc,date){
+  const d=document.createElement('div');d.innerHTML=desc||'';const wd=pd(date).getDay();
+  for(const h of d.querySelectorAll('h1,h2,h3')){const m=h.textContent.match(DAY_RE);if(m){const days=parseDays(m[1]);if(days.has(wd))return freqText({type:'custom',days:[...days]})}}
+  return freqText(base.freq,base.from);
+}
+/* Update data saved by the previous version, unless the task was edited since. */
+function patchStandard(){
+  D.tasks.forEach(t=>{
+    if(t.title==='Readjust'&&t.order===3&&(t.freq||{}).type==='daily')t.freq={type:'custom',days:[0]};
+    if(t.title==='Physical training'&&t.order===5)t.description=(t.description||'').replace(/<h3>Routine number \d (\([a-z, ]+\))<\/h3>/g,'<h3>$1</h3>').replace(/<p>–<\/p>/g,'');
+  });
+}
+/* Formatting only: the words and schedules stay the same. */
+const MEAL_B=['50 grams of protein, 115 grams of carbohydrates, 25 grams of fat and 850 calories','at least 1 liter of water','Avoid sugar, excessive salt, alcohol and non-whole foods','Eat slowly, with no distractions'];
+const EMPH={
+  'Wake up':['full 8 hour sleep','avoid all screen time for an hour','as much sun light as possible','weight yourself and write it down'],
+  'Planning':['activities and meals','current goals and expectations of the day'],
+  'Readjust':['daily macro goals','average weekly weight'],
+  'Morning hygiene':['3 minutes','medicinal shampoo','treatment serum'],
+  'Physical training':['Train hard for an hour','movement quality and intensity','maximum rest time being one minute','stretch well','apply sunscreen','sprint the last 100 meters','breast-stroke 100 meters','freestyle'],
+  'Breakfast':[...MEAL_B,'15 minute walk'],
+  'Study':['Study in depth','software engineering and financial technologies','important ideas, definitions and principles','write down everything you have studied','explain to someone with no previous expertise'],
+  'Lunch':[...MEAL_B,'15 minute walk'],
+  'Work':['Work intensely','achieving your goals','Avoid distractions','practical steps and real measurable progress'],
+  'Dinner':[...MEAL_B,'long walk','15 thousand steps'],
+  'Evening hygiene':['3 minutes','Iron and prepare your clothes'],
+  'Go to sleep':['Avoid all screen time and bright lights an hour prior','wear blue-light filtering glasses 2 hours prior']
+};
+function polishDesc(title,h){
+  if(/hygiene$/.test(title))h=h.replace(/<li>([a-z])/g,(m,c)=>'<li>'+c.toUpperCase()).replace(/([a-z])(\s*\([a-z, -]+\))?<\/li>/gi,(m,a,d)=>a+'.'+(d||'')+'</li>');
+  if(title==='Physical training'){
+    h=h.replace(/ 1 x </g,' 1 × <');
+    h=h.replace(/(?:<p>[^<]* 1 × <span class="cmp"[^>]*>[^<]*<\/span><\/p>)+/g,m=>'<ul class="dash">'+m.replace(/<p>/g,'<li>').replace(/<\/p>/g,'</li>')+'</ul>');
+    h=h.replace(/Repeat (<span class="cmp"[^>]*>[^<]*<\/span>) times\./g,'<b>Repeat $1 times.</b>');
+  }
+  (EMPH[title]||[]).forEach(p=>{h=h.split(p).join('<b>'+p+'</b>')});
+  return h;
+}
+function polishStandard(){D.tasks.forEach(t=>{if(t.order)t.description=polishDesc(t.title,t.description||'')})}
+/* Day notes: hide what is not for this day and take the note itself out of the reading view. */
+const DAY_W='mon(?:day)?|tue(?:s|sday)?|wed(?:s|nesday)?|thu(?:r|rs|rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?';
+const DAY_RE=new RegExp(`[\\s,]*\\(\\s*((?:${DAY_W})(?:\\s*[-–,]\\s*(?:${DAY_W}))*)\\s*\\)\\s*$`,'i');
+const DAY_IDX={sun:0,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6};
+function parseDays(txt){
+  const out=new Set();
+  txt.split(',').forEach(p=>{const r=p.trim().split(/\s*[-–]\s*/).map(x=>DAY_IDX[x.slice(0,3).toLowerCase()]);
+    if(r.length===1)out.add(r[0]);else for(let i=r[0],n=0;n<7;i=(i+1)%7,n++){out.add(i);if(i===r[1])break}});
+  return out;
+}
+function stripDays(el){
+  const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let last=null;
+  while(w.nextNode())if(w.currentNode.data.trim())last=w.currentNode;
+  if(last)last.data=last.data.replace(DAY_RE,'');
+}
+function applyDays(root,date){
+  const wd=pd(date).getDay();
+  root.querySelectorAll('li').forEach(li=>{const m=li.textContent.match(DAY_RE);if(!m)return;if(parseDays(m[1]).has(wd))stripDays(li);else li.remove()});
+  root.querySelectorAll('ul,ol').forEach(l=>{if(!l.children.length)l.remove()});
+  root.querySelectorAll('h1,h2,h3').forEach(h=>{
+    if(!root.contains(h))return;const m=h.textContent.match(DAY_RE);if(!m)return;
+    if(parseDays(m[1]).has(wd)){stripDays(h);if(!h.textContent.trim()){if(h.nextElementSibling)h.nextElementSibling.classList.add('day-start');h.remove()}return}
+    const lvl=+h.tagName[1];let n=h.nextElementSibling;
+    while(n&&!(/^H[1-3]$/.test(n.tagName)&&+n.tagName[1]<=lvl)){const x=n.nextElementSibling;n.remove();n=x}
+    h.remove();
+  });
+}
+
+/* ---------- storage ---------- */
+const KEY='routine-page-v1';
+let D=null,LS_OK=false;
+try{const raw=localStorage.getItem(KEY);if(raw){D=JSON.parse(raw);LS_OK=!!(D&&Array.isArray(D.tasks))}}catch(e){D=null}
+if(!D||!LS_OK)D=seed();
+['tasks','goals','events','notes'].forEach(k=>{if(!Array.isArray(D[k]))D[k]=[]});
+/* Every change is written twice: to localStorage (instant) and to IndexedDB (a sturdier
+   database inside the browser). Each copy carries a checksum; on start the newest valid copy wins. */
+const fnv=s=>{let x=0x811c9dc5;for(let i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619)}return (x>>>0).toString(16)};
+const IDB={db:null,
+  open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);if(!window.indexedDB)return rej(new Error('no idb'));const r=indexedDB.open('note-app',1);
+    r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');if(!d.objectStoreNames.contains('snaps'))d.createObjectStore('snaps',{keyPath:'id'})};
+    r.onsuccess=()=>{this.db=r.result;res(this.db)};r.onerror=()=>rej(r.error)})},
+  async tx(store,mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction(store,mode),st=t.objectStore(store);let out;const q=fn(st);if(q)q.onsuccess=()=>{out=q.result};t.oncomplete=()=>res(out);t.onerror=t.onabort=()=>rej(t.error)})},
+  get(store,key){return this.tx(store,'readonly',s=>s.get(key))},
+  all(store){return this.tx(store,'readonly',s=>s.getAll())},
+  put(store,val,key){return this.tx(store,'readwrite',s=>key===undefined?s.put(val):s.put(val,key))},
+  del(store,key){return this.tx(store,'readwrite',s=>s.delete(key))}
+};
+const STORE={ready:false,idb:true,persisted:null,lastSnapDay:null};
+let IDB_T=null;
+const countsOf=d=>({tasks:(d.tasks||[]).length,goals:(d.goals||[]).length,events:(d.events||[]).length,notes:(d.notes||[]).length});
+function save(){
+  D.meta=D.meta||{};D.meta.savedAt=Date.now();D.meta.rev=(D.meta.rev||0)+1;
+  const json=JSON.stringify(D);let ok=true;
+  try{localStorage.setItem(KEY,json)}catch(e){ok=false}
+  clearTimeout(IDB_T);IDB_T=setTimeout(()=>idbSave(json),250);
+  const w=document.getElementById('savewarn');
+  if(ok&&w)w.remove();else if(!ok&&!STORE.idb)saveFailed();
+}
+async function idbSave(json){
+  if(!STORE.ready)return;
+  try{await IDB.put('kv',{json,sum:fnv(json),savedAt:D.meta.savedAt},'state');STORE.idb=true;await dailySnap(json)}
+  catch(e){STORE.idb=false;try{localStorage.getItem(KEY)}catch(x){saveFailed()}}
+}
+async function addSnap(kind,json){
+  const now=Date.now(),d=JSON.parse(json);
+  await IDB.put('snaps',{id:kind==='daily'?'day-'+todayISO():kind+'-'+now,kind,savedAt:now,json,sum:fnv(json),counts:countsOf(d)});
+  const all=(await IDB.all('snaps')).sort((a,b)=>b.savedAt-a.savedAt);
+  const keep={daily:14,import:6,restore:6};const seen={};
+  for(const s of all){seen[s.kind]=(seen[s.kind]||0)+1;if(seen[s.kind]>(keep[s.kind]||6))await IDB.del('snaps',s.id)}
+}
+async function dailySnap(json){
+  const day=todayISO();if(STORE.lastSnapDay===day)return;
+  const ex=await IDB.get('snaps','day-'+day);if(!ex)await addSnap('daily',json);STORE.lastSnapDay=day;
+}
+function useData(next){D=next;migrate();try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}S.view={kind:'calendar'};F=null;S.pending=null;renderToolbar();renderList(true);renderInfo()}
+async function storageBoot(){
+  try{
+    const rec=await IDB.get('kv','state');
+    if(rec&&rec.json&&fnv(rec.json)===rec.sum){
+      const lsAt=LS_OK?((D.meta&&D.meta.savedAt)||0):-1;
+      if((rec.savedAt||0)>lsAt)useData(JSON.parse(rec.json));
+    }
+    STORE.ready=true;STORE.idb=true;
+    const json=JSON.stringify(D);await IDB.put('kv',{json,sum:fnv(json),savedAt:(D.meta&&D.meta.savedAt)||Date.now()},'state');await dailySnap(json);
+  }catch(e){STORE.idb=false;STORE.ready=false}
+  try{if(navigator.storage&&navigator.storage.persist)STORE.persisted=await navigator.storage.persist()}catch(e){}
+  if(S.view.kind==='data')renderInfo(false);
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&STORE.ready){clearTimeout(IDB_T);idbSave(JSON.stringify(D))}});
+function saveFailed(){if(document.getElementById('savewarn'))return;const w=document.createElement('div');w.id='savewarn';w.textContent='Changes could not be saved on this device. Open Your data and export a copy.';document.body.appendChild(w)}
+
+function seed(){
+  const now=Date.now();
+  return {tasks:[],goals:[],events:[],notes:[{id:uid(),title:'Getting started',created:now,updated:now,description:'<h2>A few tips</h2><ul><li>Type a time and duration before the title, like 07:30 30m Run, to fill them in when adding a task.</li><li>Select a number in a description and press the growth button to make it compound over time.</li><li>Tables support merging, separating and splitting cells.</li><li>Press J and K to move through the list, X to complete and N for a new task.</li></ul>'}]};
+}
+function stripLegacy(html){
+  if(!html||(html.indexOf('cmp')<0&&html.indexOf('data-fx')<0))return html;
+  const d=document.createElement('div');d.innerHTML=html;
+  d.querySelectorAll('span.cmp:not([data-factor])').forEach(s=>s.replaceWith(document.createTextNode(s.textContent||s.dataset.base||'')));
+  d.querySelectorAll('table[data-fx]').forEach(t=>t.removeAttribute('data-fx'));
+  return d.innerHTML;
+}
+function migrate(){
+  ['tasks','goals','events','notes'].forEach(k=>{if(!Array.isArray(D[k]))D[k]=[];D[k].forEach(o=>{o.description=stripLegacy(o.description)})});
+  D.tasks.forEach(t=>{
+    if(!t.from)t.from=t.only||(t.repeat&&t.repeat.date)||todayISO();
+    if(!t.freq){t.freq=t.only?{type:'once'}:(t.repeat&&t.repeat.type==='once'?{type:'once'}:{type:'daily'});if(t.only)t.from=t.only}
+    delete t.only;delete t.repeat;t.until=t.until||null;t.skip=t.skip||[];t.ovr=t.ovr||{};t.done=t.done||{};
+  });
+  D.meta=D.meta||{};
+  D.studyChecks=D.studyChecks||{};
+  if(!D.meta.standardSeeded){D.meta.standardSeeded=true;installStandard()}
+  if(!D.meta.standardV4){D.meta.standardV4=true;patchStandard()}
+  if(!D.meta.standardV5){D.meta.standardV5=true;polishStandard()}
+}
+migrate();save();
+
+/* ---------- logic ---------- */
+const COLL={task:'tasks',goal:'goals',event:'events',note:'notes'};
+const LBL={task:'Task',goal:'Goal',event:'Event',note:'Note'};
+const getItem=(k,id)=>D[COLL[k]].find(x=>x.id===id);
+const wdSort=(a,b)=>((a+6)%7)-((b+6)%7);
+const FREQ_OPTS=[['once','Once'],['daily','Every day'],['weekly','Every week'],['monthly','Every month'],['custom','Custom days']];
+const ord=n=>n+((n%100>=11&&n%100<=13)?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
+function freqText(f,from){
+  f=f||{type:'once'};
+  if(f.type==='daily')return 'Every day';
+  if(f.type==='weekly')return from?`Every ${DAYS[pd(from).getDay()]}`:'Every week';
+  if(f.type==='monthly')return from?`Every month on the ${ord(pd(from).getDate())}`:'Every month';
+  if(f.type==='custom'){
+    const d=[...(f.days||[])].sort(wdSort),n=(f.dates||[]).length,parts=[];
+    if(d.length)parts.push(d.length===7?'Every day':d.join()==='1,2,3,4,5'?'Weekdays':d.join()==='6,0'?'Weekends':'Every '+d.map(i=>DAYS[i].slice(0,3)).join(', '));
+    if(n)parts.push(n===1?`on ${fmtShort(f.dates[0])}`:`on ${n} chosen dates`);
+    if(!parts.length)return 'No days chosen yet';
+    const s=parts.join(', and ');return s[0].toUpperCase()+s.slice(1);
+  }
+  return from?`Once, ${fmtShort(from)}`:'Once';
+}
+function freqHits(f,from,d){
+  f=f||{type:'once'};
+  if(f.type==='custom'&&(f.dates||[]).includes(d))return true;
+  if(!from||d<from)return false;
+  switch(f.type){
+    case 'daily':return true;
+    case 'weekly':return pd(d).getDay()===pd(from).getDay();
+    case 'monthly':{const a=pd(from),b=pd(d),last=new Date(b.getFullYear(),b.getMonth()+1,0).getDate();return b.getDate()===Math.min(a.getDate(),last)}
+    case 'custom':return (f.days||[]).includes(pd(d).getDay());
+    default:return d===from;
+  }
+}
+function countOcc(f,start,target){
+  const days=diffDays(start,target);if(days<=0)return 0;
+  f=f||{type:'daily'};
+  if(f.type==='once')return 1;
+  if(f.type==='daily')return days;
+  if(f.type==='weekly')return Math.floor(days/7);
+  if(f.type==='monthly'){const a=pd(start),b=pd(target);let n=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth();if(b.getDate()<a.getDate())n--;return Math.max(0,n)}
+  let n=0;const s=new Set(f.days||[]),ds=new Set(f.dates||[]);
+  for(let i=1;i<=Math.min(days,3700);i++){const d=addDays(start,i);if(ds.has(d)||s.has(pd(d).getDay()))n++}
+  return n;
+}
+const occursOn=(t,d)=>!!t.from&&(!t.until||d<=t.until)&&!(t.skip||[]).includes(d)&&freqHits(t.freq,t.from,d);
+const isRepeating=t=>!!t&&(t.freq||{}).type!=='once';
+function streak(t){
+  const T=todayISO();let run=0,occ=0,dn=0;
+  for(let i=t.done&&t.done[T]?0:1;i<400;i++){const d=addDays(T,-i);if(d<t.from)break;if(!occursOn(t,d))continue;if(t.done&&t.done[d])run++;else break}
+  for(let i=1;i<=30;i++){const d=addDays(T,-i);if(occursOn(t,d)){occ++;if(t.done&&t.done[d])dn++}}
+  return {run,rate:occ?Math.round(dn/occ*100):null};
+}
+/* compounding values */
+const fmtNum=n=>{if(!isFinite(n))return '0';return String(Math.round(n*100)/100)};
+function parseFactor(s){
+  const m=String(s||'').replace(/\s+/g,'').replace(',','.').match(/^([+\-*x×\/÷])(\d+(?:\.\d+)?)(%?)$/i);if(!m)return null;
+  let op=m[1].toLowerCase();if(op==='x'||op==='×')op='*';if(op==='÷')op='/';return {op,n:parseFloat(m[2]),pct:!!m[3]};
+}
+function compVal(ds,date){
+  const b=parseFloat(ds.base)||0,f=parseFactor(ds.factor);if(!f)return b;
+  let fr;try{fr=JSON.parse(ds.freq)}catch(e){fr={type:'daily'}}
+  const k=Math.floor(countOcc(fr,ds.start||todayISO(),date)/Math.max(1,parseInt(ds.every)||1));
+  if(f.pct&&(f.op==='+'||f.op==='-'))return b*Math.pow(1+(f.op==='-'?-1:1)*f.n/100,k);
+  switch(f.op){case '+':return b+k*f.n;case '-':return b-k*f.n;case '*':return b*Math.pow(f.n,k);case '/':return f.n?b/Math.pow(f.n,k):b}
+  return b;
+}
+function hydrate(root,date){
+  root.querySelectorAll('span.cmp[data-factor]').forEach(s=>{
+    s.textContent=fmtNum(compVal(s.dataset,date));s.contentEditable='false';
+    let fr;try{fr=JSON.parse(s.dataset.freq)}catch(e){fr={type:'daily'}}
+    s.title=`Starts at ${s.dataset.base}, ${s.dataset.factor} ${freqText(fr).toLowerCase()}${+s.dataset.every>1?`, applied after every ${s.dataset.every} repeats`:''}`;
+  });
+}
+const ctxDate=()=>S.view.kind==='task'?S.date:todayISO();
+const taskOn=(t,d)=>t&&t.ovr&&t.ovr[d]?{...t,...t.ovr[d]}:t;
+const TFIELDS=['title','time','duration','description'];
+const viewOf=(kind,id)=>kind==='task'?taskOn(getItem('task',id),S.date):getItem(kind,id);
+const byTime=(a,b)=>{const x=a.time||'99',y=b.time||'99';return x<y?-1:x>y?1:((a.order??1e6)-(b.order??1e6))||a.title.localeCompare(b.title)};
+const tasksOn=d=>D.tasks.filter(t=>occursOn(t,d)).map(t=>taskOn(t,d)).sort(byTime);
+function textOf(h){const d=document.createElement('div');d.innerHTML=(h||'').replace(/<\/(p|h[1-6]|li|div|td|th|tr|blockquote)>/gi,' </$1>').replace(/<br\s*\/?>/gi,' ');return d.textContent.replace(/\s+/g,' ').trim()}
+function isEmptyHTML(h){const d=document.createElement('div');d.innerHTML=h||'';return !d.textContent.trim()&&!d.querySelector('table,img')}
+
+/* tables */
+function gridOf(table){
+  const rows=[...table.rows],grid=[],info=new Map();
+  rows.forEach((tr,r)=>{grid[r]=grid[r]||[];let c=0;
+    [...tr.cells].forEach(td=>{while(grid[r][c])c++;const rs=Math.max(1,td.rowSpan||1),cs=Math.max(1,td.colSpan||1);info.set(td,{r,c,rs,cs});
+      for(let i=0;i<rs;i++)for(let j=0;j<cs;j++){(grid[r+i]=grid[r+i]||[])[c+j]=td}c+=cs})});
+  const ncols=Math.max(0,...grid.map(g=>g?g.length:0));
+  return {rows,grid,info,ncols};
+}
+/* ---------- state ---------- */
+const S={panel:'list',mfrom:'list',dayDir:0,calDir:0,tab:'home',date:todayISO(),cal:monthStart(todayISO()),view:{kind:'calendar'},pending:null};
+let F=null;
+const listEl=$('#list'),infoEl=$('#info');
+const isEditing=()=>S.view.mode==='edit'||S.view.mode==='create';
+
+/* ---------- tool-bar ---------- */
+$('#toolbar').innerHTML=`
+<div class="tb-group">
+  <button class="tb-btn" data-tab="home" data-tip="Home   T for today" data-tip-pos="right" aria-label="Home">${ic('house')}</button>
+  <button class="tb-btn m-only" data-mcal aria-label="Calendar">${ic('calendar')}</button>
+  <button class="tb-btn" data-new="task" data-tip="Create task   N" data-tip-pos="right">${ic('listPlus')}</button>
+  <button class="tb-btn" data-new="goal" data-tip="Create goal" data-tip-pos="right">${ic('target')}</button>
+  <button class="tb-btn" data-new="event" data-tip="Create event" data-tip-pos="right">${ic('calPlus')}</button>
+</div>
+<div class="tb-group">
+  <button class="tb-btn" data-tab="notes" data-tip="Notes" data-tip-pos="right">${ic('fileText')}</button>
+  <button class="tb-btn" data-new="note" data-tip="Create note" data-tip-pos="right">${ic('filePlus')}</button>
+  <button class="tb-btn m-only" data-mplus aria-label="Create">${ic('plus')}</button>
+</div>
+<div class="tb-group tb-foot">
+  <button class="tb-btn" data-data data-tip="Your data" data-tip-pos="right" aria-label="Your data">${ic('sliders')}</button>
+</div>`;
+const MQ=matchMedia('(max-width:760px)'),isMobile=()=>MQ.matches;
+function setPanel(p){S.panel=p;document.body.classList.toggle('m-info',p==='info');renderToolbar()}
+function renderToolbar(){
+  const calOpen=isMobile()&&S.panel==='info'&&S.view.kind==='calendar';
+  document.querySelectorAll('.tb-btn[data-tab]').forEach(b=>b.classList.toggle('is-active',b.dataset.tab===S.tab&&!calOpen));
+  const mc=$('[data-mcal]');if(mc)mc.classList.toggle('is-active',calOpen);
+}
+$('#toolbar').addEventListener('click',e=>{
+  const b=e.target.closest('.tb-btn');if(!b)return;
+  if(b.dataset.mcal!==undefined)return goM('cal');
+  if(b.dataset.mplus!==undefined)return openCreateMenu(b);
+  if(b.dataset.data!==undefined)return openData();
+  if(b.dataset.tab){if(isMobile())return goM(b.dataset.tab);return switchTab(b.dataset.tab)}
+  const k=b.dataset.new;
+  if(k==='task'||k==='note'){
+    const tab=k==='task'?'home':'notes';
+    const leave=isEditing()||(S.view.kind!=='calendar'&&tab!==S.tab);
+    S.tab=tab;S.pending=k;setPanel('list');
+    if(leave){S.view={kind:'calendar'};F=null;renderInfo()}
+    renderToolbar();renderList(true);
+  }else{
+    S.pending=null;
+    const draft=k==='goal'?{id:uid(),title:'',target:'',deadline:'',done:false,description:''}:{id:uid(),title:'',date:S.date,time:'',description:''};
+    startCreate(k,draft);
+  }
+});
+function switchTab(t){
+  const changed=S.tab!==t;S.tab=t;S.pending=null;
+  const v=S.view;
+  if((t==='notes'&&v.kind==='task')||(t==='home'&&v.kind==='note')){S.view={kind:'calendar'};F=null;renderInfo()}
+  renderToolbar();renderList(changed);
+}
+
+/* ---------- task-list ---------- */
+let PROG={date:null,w:null};
+function renderList(anim){
+  const qf=document.activeElement&&document.activeElement.id==='nq';
+  const oldBar=$('.prog span',listEl),oldW=oldBar?oldBar.style.width:null;
+  listEl.innerHTML=S.tab==='home'?homeListHTML():notesListHTML();
+  const bar=$('.prog span',listEl);
+  if(bar){
+    const target=bar.style.width,from=(PROG.date===S.date&&oldW!==null)?oldW:(PROG.date===S.date?PROG.w:null);
+    if(from!==null&&from!==target){bar.style.width=from;bar.getBoundingClientRect();requestAnimationFrame(()=>{bar.style.width=target})}
+    PROG={date:S.date,w:target};
+  }else if(S.tab==='home')PROG={date:S.date,w:'0%'};
+  if(S.dayDir)$('.rows',listEl).classList.add(S.dayDir>0?'slide-next':'slide-prev');else if(anim)$('.rows',listEl).classList.add('anim');
+  const inp=$('.row-input input',listEl);if(inp)inp.focus();
+  if(qf){const q=$('#nq');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}
+}
+function inputRow(icon,ph){return `<div class="row row-input"><span class="lead">${ic(icon)}</span><input placeholder="${ph}" maxlength="140"></div>`}
+function taskRow(t,draft,now=null){
+  const done=!draft&&t.done&&t.done[S.date];
+  let st='';
+  if(now!==null&&t.time&&!done){const a=toMin(t.time),b=a+(+t.duration||0);if(now>=a&&now<Math.max(b,a+1))st='is-now';else if(now>=Math.max(b,a+1))st='is-late'}
+  if(!draft&&S.justDone===t.id)st+=' just-done';
+  const sel=draft||(S.view.kind==='task'&&S.view.id===t.id);
+  return `<div class="row ${sel?'is-sel':''} ${done?'is-done':''} ${draft?'is-draft':''} ${st}" data-id="${t.id}">
+    <button class="check" data-act="toggle" ${draft?'disabled':''}>${ic(done?'circleCheck':'circle')}</button>
+    <div class="r-main"><div class="r-title">${esc(t.title)}</div>${t.duration?`<div class="r-meta">${fmtDur(t.duration)}</div>`:''}</div>
+    ${t.time?`<div class="r-time">${t.time}</div>`:''}</div>`;
+}
+const nowMin=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()};
+const toMin=t=>{const[a,b]=t.split(':').map(Number);return a*60+b};
+const fmtIn=m=>m<60?`${m} min`:fmtDur(Math.round(m/5)*5);
+function homeListHTML(){
+  const ts=tasksOn(S.date),v=S.view,creating=v.kind==='task'&&v.mode==='create';
+  const done=ts.filter(t=>t.done&&t.done[S.date]).length;
+  const isToday=S.date===todayISO();const d=pd(S.date),now=nowMin();
+  let rows='';
+  if(S.pending==='task')rows+=inputRow('circle','Task title, for example 07:30 30m Run');
+  if(creating)rows+=taskRow(v.draft,true);
+  const groups=[['Morning',t=>t.time&&toMin(t.time)<720],['Afternoon',t=>t.time&&toMin(t.time)>=720&&toMin(t.time)<1020],['Evening',t=>t.time&&toMin(t.time)>=1020],['',t=>!t.time]];
+  let nowPlaced=!isToday;
+  groups.forEach(([label,fn])=>{
+    const g=ts.filter(fn);if(!g.length)return;
+    rows+=label?`<div class="grp">${label}</div>`:(rows?'<div class="grp-gap"></div>':'');
+    g.forEach(t=>{
+      if(!nowPlaced&&t.time&&toMin(t.time)>now){rows+=`<div class="now-line"><span>${pad(Math.floor(now/60))}:${pad(now%60)}</span></div>`;nowPlaced=true}
+      rows+=taskRow(t,false,isToday?now:null);
+    });
+  });
+  if(!ts.length&&!creating&&S.pending!=='task')rows+=`<div class="empty">${ic('sun')}<div>No tasks for this day</div><button class="text-btn" data-act="quick-add">Add a task</button></div>`;
+  const next=isToday?ts.find(t=>t.time&&toMin(t.time)>now&&!(t.done&&t.done[S.date])):null;
+  const all=ts.length&&done===ts.length;
+  const sameYear=d.getFullYear()===new Date().getFullYear();
+  const title=isToday?'Today':`${d.getDate()} ${MONTHS[d.getMonth()]}${sameYear?'':' '+d.getFullYear()}`;
+  const sub=isToday?`${d.getDate()} ${MONTHS[d.getMonth()]}`:DAYS[d.getDay()];
+  return `<div class="l-head"><div class="day-nav">
+      <button class="icon-btn" data-act="prev" data-tip="Previous day">${ic('chevL')}</button>
+      <button class="day-title" data-act="today" ${isToday?'disabled':'data-tip="Back to today"'}><span class="l-day">${title}</span><span class="l-date">${sub}</span></button>
+      <button class="icon-btn" data-act="next" data-tip="Next day">${ic('chevR')}</button></div>
+    ${ts.length?`<div class="prog-wrap ${all?'is-all':''}"><div class="prog"><span style="width:${Math.round(done/ts.length*100)}%"></span></div><span class="prog-t">${all?'All done':`${done} of ${ts.length} done`}</span></div>`:''}
+    ${next?`<div class="l-next">Next: ${esc(next.title)} in ${fmtIn(toMin(next.time)-now)}</div>`:''}
+  </div><div class="rows">${rows}</div>`;
+}
+function notesListHTML(){
+  const q=(S.nq||'').trim().toLowerCase();
+  const ns=[...D.notes].filter(n=>!q||(n.title+' '+textOf(n.description)).toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated),v=S.view,creating=v.kind==='note'&&v.mode==='create';
+  const row=(n,draft)=>`<div class="row ${draft||(v.kind==='note'&&v.id===n.id)?'is-sel':''} ${draft?'is-draft':''}" data-id="${n.id}">
+    <div class="r-main"><div class="r-title">${esc(n.title)}</div><div class="r-snip">${esc(textOf(n.description).slice(0,120))||'&nbsp;'}</div></div>
+    <div class="r-date">${draft?'New':fmtShort(iso(new Date(n.updated)))}</div></div>`;
+  let rows='';
+  if(S.pending==='note')rows+=inputRow('fileText','Note title');
+  if(creating)rows+=row(v.draft,true);
+  rows+=ns.map(n=>row(n)).join('');
+  if(!ns.length&&!creating&&S.pending!=='note')rows+=`<div class="empty">${ic('fileText')}<div>No notes yet</div></div>`;
+  return `<div class="l-head"><div class="notes-head"><div class="l-day">Notes</div><div class="l-date">${ns.length} ${ns.length===1?'note':'notes'}</div></div><label class="nsearch">${ic('search')}<input id="nq" placeholder="Search notes" value="${esc(S.nq||'')}" autocomplete="off"></label></div><div class="rows">${rows}</div>`;
+}
+listEl.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]'),row=e.target.closest('.row[data-id]');
+  if(a){const act=a.dataset.act;
+    if(act==='prev')return shiftDay(-1);
+    if(act==='next')return shiftDay(1);
+    if(act==='today')return setDate(todayISO());
+    if(act==='quick-add')return $('[data-new=task]').click();
+    if(act==='toggle'&&row)return toggleTask(row.dataset.id);
+  }
+  if(row&&!row.classList.contains('is-draft')&&!row.classList.contains('row-input'))openItem(S.tab==='home'?'task':'note',row.dataset.id);
+});
+listEl.addEventListener('input',e=>{if(e.target.id==='nq'){S.nq=e.target.value;renderList()}});
+listEl.addEventListener('keydown',e=>{
+  if(!e.target.matches('.row-input input'))return;
+  if(e.key==='Enter'){e.preventDefault();commitPending(e.target.value.trim())}
+  if(e.key==='Escape'){S.pending=null;renderList()}
+});
+listEl.addEventListener('focusout',e=>{
+  if(!e.target.matches('.row-input input'))return;
+  const val=e.target.value.trim();
+  setTimeout(()=>{if(!S.pending)return;if(val)commitPending(val);else{S.pending=null;renderList()}},0);
+});
+function commitPending(title){
+  const type=S.pending;S.pending=null;
+  if(!title)return renderList();
+  if(type==='task'){const q=parseQuick(title);startCreate('task',{id:uid(),title:q.title,time:q.time,duration:q.duration,description:'',freq:{type:'once'},from:S.date,until:null,skip:[],ovr:{},done:{}})}
+  else{const now=Date.now();startCreate('note',{id:uid(),title,description:'',created:now,updated:now})}
+}
+function parseQuick(s){
+  let time='',duration=0,t=' '+s+' ';
+  t=t.replace(/\s(\d{1,2})[:.](\d{2})(?=\s)/,(m,a,b)=>{if(+a<24&&+b<60&&!time){time=pad(+a)+':'+b;return ' '}return m});
+  t=t.replace(/\s(\d+)\s?h(?:ours?|rs?)?\s?(\d+)\s?m(?:in(?:utes?|s)?)?(?=\s)/i,(m,a,b)=>{duration=+a*60+ +b;return ' '});
+  if(!duration)t=t.replace(/\s(\d+(?:[.,]\d+)?)\s?(h|hr|hrs|hours?|m|min|mins|minutes?)(?=\s)/i,(m,n,u)=>{n=parseFloat(n.replace(',','.'));duration=Math.round(/^h/i.test(u)?n*60:n);return ' '});
+  const title=t.replace(/\s+/g,' ').trim();
+  return title?{title,time,duration}:{title:s,time:'',duration:0};
+}
+function startCreate(kind,draft){S.mfrom=S.panel==='info'&&S.view.kind==='calendar'?'cal':'list';if(S.panel!=='info')parkInfo(false);S.view={kind,mode:'create',draft};F=draft;renderList();renderInfo();setPanel('info')}
+function setDate(d,anim=true){
+  S.date=d;
+  if(S.tab!=='home'){S.tab='home';renderToolbar()}
+  let changed=false;const v=S.view;
+  if(v.kind==='task'&&v.mode==='view'){const t=getItem('task',v.id);if(!t||!occursOn(t,d)){S.view={kind:'calendar'};changed=true}}
+  if(v.kind==='note'){S.view={kind:'calendar'};F=null;changed=true}
+  const m0=pd(S.cal),dd=pd(d),idx=(dd.getFullYear()-m0.getFullYear())*12+dd.getMonth()-m0.getMonth();
+  if(idx<0||idx>1)S.cal=monthStart(d);
+  renderList(anim);
+  if(!isEditing())renderInfo(changed);
+}
+function toggleTask(id){
+  const t=getItem('task',id);if(!t)return;t.done=t.done||{};
+  if(t.done[S.date])delete t.done[S.date];else{t.done[S.date]=true;S.justDone=id}
+  save();renderList();S.justDone=null;
+  if(S.view.kind==='task'&&S.view.id===id&&S.view.mode==='view')renderInfo(false);
+}
+function openItem(kind,id){if(S.panel!=='info'){S.mfrom='list';parkInfo(false)}else if(S.view.kind==='calendar')S.mfrom='cal';S.view={kind,id,mode:'view'};F=null;S.pending=null;renderList();renderInfo();setPanel('info')}
+function backToCal(){S.view={kind:'calendar'};F=null;renderList();renderInfo();setPanel(isMobile()&&S.mfrom==='cal'?'info':'list')}
+
+/* ---------- info-space ---------- */
+function renderInfo(anim=true){
+  closePop();
+  const v=S.view;let html;
+  if(v.kind==='calendar')html=calendarHTML();
+  else if(v.kind==='data')html=dataViewHTML();
+  else{
+    const obj=v.mode==='create'?v.draft:viewOf(v.kind,v.id);
+    if(!obj){S.view={kind:'calendar'};return renderInfo(anim)}
+    if(v.mode==='create')F=v.draft;else if(v.mode==='edit'&&!F)F=structuredClone(obj);
+    html=itemHTML(v.kind,v.mode==='view'?obj:F,v.mode);
+  }
+  const st=infoEl.scrollTop;
+  infoEl.innerHTML=`<div class="view ${anim?'enter':''}">${html}</div>`;
+  infoEl.scrollTop=anim?0:st;
+  afterInfo();
+}
+function afterInfo(){
+  const v=S.view;if(v.kind==='calendar')return;
+  if(v.kind==='data'){loadSnaps();return}
+  const editing=v.mode!=='view',o=editing?F:viewOf(v.kind,v.id);
+  if(editing){setupEditor(o);validate();if(!o.title)$('.title-edit').focus()}
+  else{const r=$('#rich');if(r){r.innerHTML=o.description||'';hydrate(r,ctxDate());if(v.kind==='task')applyDays(r,S.date);if(v.kind==='task'&&o.study)decorateStudy(r);r.addEventListener('copy',e=>copyRich(e,false))}}
+}
+function actionsHTML(kind,o){
+  const b=(act,icon,tip,on)=>`<button class="icon-btn ${on?'is-on':''}" data-act="${act}" data-tip="${tip}">${ic(icon)}</button>`;
+  let h='';
+  if(kind==='task'){const d=o.done&&o.done[S.date];h+=b('complete',d?'circleCheck':'check',d?'Mark as not done':'Complete',d)}
+  if(kind==='goal')h+=b('complete',o.done?'circleCheck':'check',o.done?'Mark as open':'Mark as achieved',o.done);
+  h+=b('edit','pencil','Edit');
+  if(kind==='task'||kind==='note')h+=b('duplicate','copy','Duplicate');
+  h+=b('delete','trash','Delete');
+  return `<div class="actions">${h}</div>`;
+}
+function itemHTML(kind,o,mode){
+  const editing=mode!=='view';
+  let kindLine=mode==='create'?'New '+LBL[kind].toLowerCase():LBL[kind];
+  if(kind==='note'&&mode==='view')kindLine+=`, edited ${fmtShort(iso(new Date(o.updated)))}`;
+  if(kind==='task'&&mode==='view')kindLine=fmtShort(S.date);
+  const head=`<div class="item-head">
+    <button class="icon-btn back-btn" data-act="back" data-tip="Back" aria-label="Back">${ic('chevL')}</button>
+    <div class="head-title"><div class="kind">${kindLine}</div>
+      ${editing?`<input class="title-edit" data-f="title" placeholder="Title" maxlength="140" value="${esc(o.title)}">`:`<h1>${esc(o.title)||'Untitled'}</h1>`}</div>
+    ${editing?`<div class="actions edit-acts"><button class="icon-btn" data-act="cancel" data-tip="Cancel">${ic('x')}</button><button class="icon-btn primary" data-act="save" id="saveBtn" data-tip-pos="left" data-tip="${mode==='create'?'Create':'Save'}">${ic('check')}</button></div>`:actionsHTML(kind,o)}</div>`;
+  let desc;
+  if(editing)desc=`<div class="sec-l">${kind==='note'?'Content':'Description'}${kind==='note'?'<span class="req">Required</span>':''}</div>
+    <div class="editor">${edBarHTML()}<div class="ed-body rich" id="ed" contenteditable="true" spellcheck="false" data-ph="Write here..."></div></div>`;
+  else if(isEmptyHTML(o.description))desc=kind==='note'?'':`<div class="sec-l">Description</div><div class="muted">No description</div>`;
+  else desc=`${kind==='note'?'':`<div class="sec-l">Description${kind==='task'&&o.study?`<span class="req" id="saCount">${esc(saCountText(o.description))}</span>`:''}</div>`}<div class="rich" id="rich"></div>`;
+  return head+statsHTML(kind,o,editing)+desc;
+}
+function statsHTML(kind,o,editing){
+  const st=(icon,label,val,req,cls='')=>`<div class="stat ${cls}"><div class="stat-l">${label}${req?'<span class="req">Required</span>':''}</div><div class="stat-v">${val}</div></div>`;
+  const none='<span class="none">Not set</span>';
+  if(kind==='task'){
+    if(!editing){
+      const base=getItem('task',o.id);
+      return `<div class="stats">${st('clock','Time',o.time?`<span class="mono">${o.time}${o.duration?' – '+endTime(o.time,o.duration):''}</span>`:none)}${st('timer','Duration',fmtDur(o.duration)||none)}${st('repeat','Repeats',`<span class="freq-v">${esc(repeatText(base,o.description,S.date))}</span>`,0,'stat-wide')}</div>`;
+    }
+    const dh=Math.floor((o.duration||0)/60),dm=(o.duration||0)%60;
+    return `<div class="stats">
+      ${st('clock','Time',pickBtn('time','time',o.time,'Not set'))}
+      ${st('timer','Duration',`<div class="inrow"><input type="number" min="0" class="bare num" data-f="dh" placeholder="0" value="${dh||''}" style="width:${String(dh||'0').length}ch"><span class="unit">h</span><input type="number" min="0" max="59" class="bare num" data-f="dm" placeholder="0" value="${dm||''}" style="width:${String(dm||'0').length}ch"><span class="unit">min</span></div>`)}
+      ${st('repeat','Repeats',`<button class="pick freq-v" data-act="freq">${esc(freqText(o.freq,o.from||S.date))}</button>`,0,'stat-wide')}
+    </div>`;
+  }
+  if(kind==='goal'){
+    if(!editing)return `<div class="stats">${st('target','Target',esc(o.target)||none)}${st('flag','Deadline',o.deadline?fmtFull(o.deadline):none)}${st('hourglass','Status',o.done?'Achieved':(o.deadline?(diffDays(todayISO(),o.deadline)<0?'Overdue':relDays(o.deadline)):none))}</div>`;
+    return `<div class="stats">${st('target','Target',`<input class="bare" data-f="target" placeholder="e.g. €5,000" value="${esc(o.target)}">`,1)}${st('flag','Deadline',pickBtn('date','deadline',o.deadline,'Pick a date'),1)}</div>`;
+  }
+  if(kind==='event'){
+    if(!editing)return `<div class="stats">${st('calendar','Date',o.date?fmtFull(o.date):none)}${st('clock','Time',o.time?`<span class="mono">${o.time}</span>`:none)}${st('hourglass','When',o.date?relDays(o.date):none)}</div>`;
+    return `<div class="stats">${st('calendar','Date',pickBtn('date','date',o.date,'Pick a date'),1)}${st('clock','Time',pickBtn('time','time',o.time,'Pick a time'),1)}</div>`;
+  }
+  return '';
+}
+function pickBtn(kind,f,val,ph,cls=''){
+  const label=val?(kind==='date'?fmtFull(val):val):ph;
+  return `<button type="button" class="pick${cls} ${val?'':'empty'}" data-pick="${kind}" data-f="${f}" data-v="${val||''}" data-ph="${esc(ph)}">${esc(label)}</button>`;
+}
+
+function calendarHTML(){
+  const m0=pd(S.cal),m1=new Date(m0.getFullYear(),m0.getMonth()+1,1),T=todayISO();
+  const ev={},gl={};
+  D.events.forEach(e=>{if(e.date)(ev[e.date]=ev[e.date]||[]).push(e)});
+  D.goals.forEach(g=>{if(g.deadline)(gl[g.deadline]=gl[g.deadline]||[]).push(g)});
+  const month=m=>{
+    const y=m.getFullYear(),mo=m.getMonth(),first=(new Date(y,mo,1).getDay()+6)%7,n=new Date(y,mo+1,0).getDate();
+    let cells='<span></span>'.repeat(first);
+    for(let d=1;d<=n;d++){const s=iso(new Date(y,mo,d));
+      const tip=[...(ev[s]||[]).map(e=>e.title),...(gl[s]||[]).map(g=>g.title+' deadline')].join(', ');
+      cells+=`<button class="day ${s===T?'is-today':''} ${s===S.date?'is-sel':''} ${s<T?'is-past':''} ${ev[s]?'is-ev':''} ${gl[s]&&!ev[s]?'is-dl':''} ${gl[s]&&ev[s]?'is-both':''}" data-act="day" data-date="${s}" ${tip?`title="${esc(tip)}"`:''}>${d}</button>`}
+    return `<div class="month"><div class="m-name">${MONTHS[mo]} <span>${y}</span></div><div class="wd">${WEEK.map(i=>`<span>${DAYS[i].slice(0,3)}</span>`).join('')}</div><div class="days">${cells}</div></div>`;
+  };
+  const dayItems=[...(ev[S.date]||[]).sort(byTime).map(e=>itemRow('event',e)),...(gl[S.date]||[]).map(g=>itemRow('goal',g))].join('');
+  const up=[...D.events.filter(e=>e.date>=T).map(e=>({k:'event',o:e,key:e.date+(e.time||'')})),...D.goals.filter(g=>!g.done&&g.deadline>=T).map(g=>({k:'goal',o:g,key:g.deadline+'~'}))].sort((a,b)=>a.key<b.key?-1:1).slice(0,6);
+  const inView=monthStart(T)===S.cal;
+  const y0=m0.getFullYear(),y1=m1.getFullYear();
+  return `<div class="day-nav cal-head">
+      <button class="icon-btn" data-act="cal-prev" data-tip="Previous month">${ic('chevL')}</button>
+      <button class="day-title" data-act="cal-today" ${inView?'disabled':'data-tip="Back to this month"'}><span class="cal-title">${MONTHS[m0.getMonth()]} – ${MONTHS[m1.getMonth()]}</span><span class="l-date">${y0===y1?y0:`${y0} – ${y1}`}</span></button>
+      <button class="icon-btn" data-act="cal-next" data-tip="Next month">${ic('chevR')}</button></div>
+    <div class="months ${S.calDir>0?'slide-next':S.calDir<0?'slide-prev':''}">${month(m0)}${month(m1)}</div>
+    <div class="cal-bottom">
+      <div><div class="sec-h">${fmtLong(S.date)}</div>${dayItems||'<div class="muted">No events or deadlines on this day</div>'}</div>
+      <div><div class="sec-h">Upcoming</div>${up.map(x=>itemRow(x.k,x.o,true)).join('')||'<div class="muted">Nothing upcoming</div>'}</div>
+    </div>`;
+}
+function itemRow(k,o,showDate){
+  const right=k==='event'?`${showDate?`<span>${fmtShort(o.date)}</span>`:''}<span class="mono">${o.time||''}</span>`:`${showDate?`<span>${fmtShort(o.deadline)}</span>`:''}<span>${esc(o.target||'')}</span>`;
+  return `<div class="it ${k==='event'?'ev':'dl'} ${o.done?'is-done':''}" data-act="open" data-kind="${k}" data-id="${o.id}">${ic(k==='event'?'calendar':'target')}<span class="it-t">${esc(o.title)}</span><span class="it-r">${right}</span></div>`;
+}
+
+function shiftDay(n){S.dayDir=n;setDate(addDays(S.date,n));S.dayDir=0}
+let LWHEEL={acc:0,last:0},TSW=null,TSWIPED=false;
+listEl.addEventListener('wheel',e=>{
+  if(S.tab!=='home'||!e.target.closest('.rows')||Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;
+  e.preventDefault();const now=Date.now();if(now-LWHEEL.last<500)return;
+  LWHEEL.acc+=e.deltaX;if(Math.abs(LWHEEL.acc)>70){shiftDay(LWHEEL.acc>0?1:-1);LWHEEL={acc:0,last:now}}
+},{passive:false});
+/* phone: swipe between Home, Calendar and Notes; swipe right on an open item to go back */
+const MT=['home','cal','notes'];
+function curM(){if(S.panel==='info')return S.view.kind==='calendar'?'cal':null;return S.tab==='home'?'home':'notes'}
+function parkInfo(left){infoEl.style.transition='none';document.body.classList.toggle('m-left',left);infoEl.getBoundingClientRect();infoEl.style.transition=''}
+function goM(t){
+  const from=curM();if(t===from)return;
+  const dir=from===null?-1:(MT.indexOf(t)>MT.indexOf(from)?1:-1);
+  if(t==='cal'){
+    if(!isEditing()){S.view={kind:'calendar'};F=null;S.pending=null;renderList();renderInfo(false)}
+    if(S.panel!=='info')parkInfo(dir<0);
+    S.mfrom='cal';setPanel('info');return;
+  }
+  if(S.panel==='info')document.body.classList.toggle('m-left',dir>0);
+  const wasList=S.panel==='list';
+  setPanel('list');
+  if(S.tab!==t)switchTab(t);
+  if(wasList)listEl.animate([{transform:`translateX(${dir*40}px)`,opacity:0},{transform:'none',opacity:1}],{duration:300,easing:'cubic-bezier(.2,.7,.2,1)'});
+}
+function openCreateMenu(btn){
+  if(POP&&POP.anchor===btn)return closePop();
+  const el=openPop(btn,`<div class="menu">${[['task','listPlus','Task'],['event','calPlus','Event'],['goal','target','Goal'],['note','filePlus','Note']].map(([k,i,l])=>`<button class="mi mi-icon" data-k="${k}">${ic(i)}${l}</button>`).join('')}<div class="mi-sep"></div><button class="mi mi-icon" data-k="backup">${ic('sliders')}Your data</button></div>`);
+  el.classList.add('menu-pop');
+  const r=btn.getBoundingClientRect();el.style.left=Math.max(12,r.right-el.offsetWidth)+'px';el.style.top=(r.top-el.offsetHeight-10)+'px';
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;closePop();if(b.dataset.k==='backup')return openData();$(`.tb-btn[data-new="${b.dataset.k}"]`).click()});
+}
+document.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'||e.target.closest('input,textarea,[contenteditable="true"],.months,.pop,.modal,#toolbar'))return;
+  if(isMobile()){
+    if(isEditing()||S.pending)return;
+    const el=S.panel==='info'?infoEl:listEl;if(!el.contains(e.target))return;
+    TSW={x:e.clientX,y:e.clientY,el,mode:S.panel==='info'&&S.view.kind!=='calendar'?'back':'tabs',moved:false};return;
+  }
+  if(listEl.contains(e.target)&&S.tab==='home'&&e.target.closest('.rows'))TSW={x:e.clientX,y:e.clientY,mode:'day'};
+});
+document.addEventListener('pointermove',e=>{
+  if(!TSW||!TSW.el)return;const dx=e.clientX-TSW.x,dy=e.clientY-TSW.y;
+  if(!TSW.moved&&Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.3)TSW.moved=true;
+  if(!TSW.moved)return;
+  const cur=MT.indexOf(curM());let d=dx;
+  if(TSW.mode==='tabs'&&((cur===0&&dx>0)||(cur===MT.length-1&&dx<0)))d=dx*.25;
+  if(TSW.mode==='back'&&dx<0)d=dx*.15;
+  TSW.el.style.transition='none';TSW.el.style.transform=`translateX(${d*.5}px)`;
+});
+function endSwipe(e){
+  if(!TSW)return;const s=TSW,dx=e?e.clientX-s.x:0,dy=e?e.clientY-s.y:0;TSW=null;
+  if(s.el){s.el.style.transition='';s.el.style.transform=''}
+  if(!e||Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.3)return;
+  TSWIPED=true;setTimeout(()=>TSWIPED=false,0);
+  if(s.mode==='day')return shiftDay(dx<0?1:-1);
+  if(s.mode==='back'){if(dx>0)backToCal();return}
+  const i=MT.indexOf(curM()),n=i+(dx<0?1:-1);if(n>=0&&n<MT.length)goM(MT[n]);
+}
+document.addEventListener('pointerup',endSwipe);
+document.addEventListener('pointercancel',()=>endSwipe(null));
+document.addEventListener('click',e=>{if(TSWIPED){e.stopPropagation();e.preventDefault()}},true);
+MQ.addEventListener('change',()=>{setPanel(isMobile()&&S.view.kind!=='calendar'?'info':'list')});
+function shiftCal(n,to){S.cal=to||addMonths(S.cal,n);S.calDir=n;renderInfo(false);S.calDir=0}
+/* swipe through months: trackpad horizontal scroll, mouse drag or touch */
+let WHEEL={acc:0,last:0},SWIPE=null,SWIPED=false;
+infoEl.addEventListener('wheel',e=>{
+  if(!e.target.closest('.months')||Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;
+  e.preventDefault();const now=Date.now();
+  if(now-WHEEL.last<500)return;
+  WHEEL.acc+=e.deltaX;
+  if(Math.abs(WHEEL.acc)>70){shiftCal(WHEEL.acc>0?1:-1);WHEEL={acc:0,last:now}}
+},{passive:false});
+infoEl.addEventListener('pointerdown',e=>{const m=e.target.closest('.months');if(!m||e.button!==0)return;SWIPE={x:e.clientX,y:e.clientY,el:m,moved:false}});
+document.addEventListener('pointermove',e=>{
+  if(!SWIPE)return;const dx=e.clientX-SWIPE.x,dy=e.clientY-SWIPE.y;
+  if(!SWIPE.moved&&Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)){SWIPE.moved=true;SWIPE.el.classList.add('dragging')}
+  if(SWIPE.moved)SWIPE.el.style.transform=`translateX(${dx*.35}px)`;
+});
+document.addEventListener('pointerup',e=>{
+  if(!SWIPE)return;const s=SWIPE,dx=e.clientX-s.x;SWIPE=null;
+  if(!s.moved)return;
+  SWIPED=true;setTimeout(()=>SWIPED=false,0);
+  s.el.classList.remove('dragging');
+  if(Math.abs(dx)>60)shiftCal(dx<0?1:-1);else s.el.style.transform='';
+});
+infoEl.addEventListener('click',e=>{if(SWIPED){e.stopPropagation();e.preventDefault()}},true);
+infoEl.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const act=a.dataset.act,v=S.view;
+  switch(act){
+    case 'back':backToCal();break;
+    case 'cancel':if(v.mode==='create')backToCal();else{F=null;S.view={kind:v.kind,id:v.id,mode:'view'};renderInfo()}break;
+    case 'save':doSave();break;
+    case 'freq':openRepeat(a);break;
+    case 'sa-toggle':toggleSubarea(a);break;
+    case 'edit':F=structuredClone(viewOf(v.kind,v.id));S.view={kind:v.kind,id:v.id,mode:'edit'};renderInfo();break;
+    case 'complete':
+      if(v.kind==='task')toggleTask(v.id);
+      else{const g=getItem('goal',v.id);g.done=!g.done;save();renderInfo(false)}
+      break;
+    case 'duplicate':{
+      const o=getItem(v.kind,v.id),c=structuredClone(v.kind==='task'?viewOf('task',v.id):o);c.id=uid();
+      if(v.kind==='task'){Object.assign(c,{done:{},skip:[],ovr:{},until:null,from:S.date,freq:structuredClone(o.freq||{type:'once'})})}else c.created=c.updated=Date.now();
+      const arr=D[COLL[v.kind]];arr.splice(arr.indexOf(o)+1,0,c);save();openItem(v.kind,c.id);break}
+    case 'delete':if(v.kind==='task'&&isRepeating(getItem('task',v.id))){deleteRoutine(v.id);break}
+      confirmBox(`Delete this ${v.kind}?`,()=>{const arr=D[COLL[v.kind]];const i=arr.findIndex(x=>x.id===v.id);if(i>=0)arr.splice(i,1);save();backToCal()});break;
+    case 'cal-prev':shiftCal(-1);break;
+    case 'cal-next':shiftCal(1);break;
+    case 'cal-today':{const t=monthStart(todayISO());shiftCal(t<S.cal?-1:1,t);break}
+    case 'day':setDate(a.dataset.date,true);if(isMobile())goM('home');break;
+    case 'open':openItem(a.dataset.kind,a.dataset.id);break;
+  }
+});
+infoEl.addEventListener('input',e=>{
+  const f=e.target.dataset.f;if(!f||!F)return;const val=e.target.value;
+  switch(f){
+    case 'title':F.title=val;if(S.view.mode==='create'){const r=$('.row.is-draft .r-title',listEl);if(r)r.textContent=val}break;
+    case 'time':F.time=val;break;
+    case 'dh':case 'dm':{e.target.style.width=Math.max(1,e.target.value.length)+'ch';const h=+$('[data-f=dh]',infoEl).value||0,m=+$('[data-f=dm]',infoEl).value||0;F.duration=Math.max(0,h*60+m);break}
+    case 'target':F.target=val;break;
+    case 'deadline':F.deadline=val;break;
+    case 'date':F.date=val;break;
+  }
+  validate();
+});
+function applyField(f,val){
+  if(!F)return;
+  if(f==='time')F.time=val;else if(f==='date')F.date=val;else if(f==='deadline')F.deadline=val;
+  validate();
+}
+function setPick(btn,val){
+  btn.dataset.v=val||'';btn.classList.toggle('empty',!val);
+  btn.textContent=val?(btn.dataset.pick==='date'?fmtFull(val):val):btn.dataset.ph;
+  applyField(btn.dataset.f,val);
+}
+infoEl.addEventListener('click',e=>{
+  const b=e.target.closest('[data-pick]');if(!b)return;
+  if(POP&&POP.anchor===b)return closePop();
+  if(b.dataset.pick==='date')openDatePicker(b,{value:b.dataset.v,onPick:v=>{setPick(b,v);closePop()}});
+  else openTimePicker(b,{value:b.dataset.v,clearable:S.view.kind==='task',onPick:(v,done)=>{setPick(b,v);if(done)closePop()}});
+});
+
+/* ---------- date and time pickers ---------- */
+function dpGrid(view,isOn){
+  const m=pd(view),y=m.getFullYear(),mo=m.getMonth(),first=(new Date(y,mo,1).getDay()+6)%7,n=new Date(y,mo+1,0).getDate(),T=todayISO();
+  let c='<span></span>'.repeat(first);
+  for(let d=1;d<=n;d++){const s=iso(new Date(y,mo,d));c+=`<button class="dp-d ${s===T?'today':''} ${isOn(s)?'on':''}" data-d="${s}">${d}</button>`}
+  return `<div class="dp-head"><button class="mini" data-dp="-1">${ic('chevL')}</button><span>${MONTHS[mo]} ${y}</span><button class="mini" data-dp="1">${ic('chevR')}</button></div>
+    <div class="dp-wd">${WEEK.map(i=>`<span>${DAYS[i].slice(0,2)}</span>`).join('')}</div><div class="dp-grid">${c}</div>`;
+}
+function openDatePicker(anchor,{value,onPick}){
+  let view=monthStart(value||S.date);
+  const el=openPop(anchor,'');el.classList.add('dp');
+  const paint=()=>{el.innerHTML=dpGrid(view,s=>s===value)};paint();
+  el.addEventListener('click',e=>{
+    const nav=e.target.closest('[data-dp]');if(nav){view=addMonths(view,+nav.dataset.dp);paint();return}
+    const d=e.target.closest('[data-d]');if(d)onPick(d.dataset.d);
+  });
+}
+function openTimePicker(anchor,{value,clearable,onPick}){
+  let [hh,mm]=(value||'').split(':');
+  const el=openPop(anchor,'');el.classList.add('tp-pop');
+  const col=(c,n,cur)=>`<div class="tp-col" data-c="${c}">${Array.from({length:n},(_,i)=>pad(i)).map(v=>`<button class="${v===cur?'on':''}" data-t="${v}">${v}</button>`).join('')}</div>`;
+  const paint=()=>{
+    const sh=$('.tp-col[data-c=h]',el),sm=$('.tp-col[data-c=m]',el),st=[sh?sh.scrollTop:null,sm?sm.scrollTop:null];
+    el.innerHTML=`<div class="tp-lab"><span>Hour</span><span>Minute</span></div><div class="tp">${col('h',24,hh)}${col('m',60,mm)}</div>
+      <div class="pop-foot">${clearable?`<button class="text-btn" data-tclear>Clear</button>`:''}<span class="grow"></span><span class="tp-val">${hh&&mm?hh+':'+mm:'--:--'}</span></div>`;
+    [['h',st[0]],['m',st[1]]].forEach(([c,t])=>{const box=$(`.tp-col[data-c=${c}]`,el),on=$('.on',box);
+      if(t!==null)box.scrollTop=t;else if(on)box.scrollTop=on.offsetTop-box.clientHeight/2+on.offsetHeight/2;
+      else box.scrollTop=(c==='h'?(+pad(new Date().getHours())):0)*34-90});
+  };
+  paint();
+  el.addEventListener('click',e=>{
+    if(e.target.closest('[data-tclear]')){onPick('',true);return}
+    const b=e.target.closest('[data-t]');if(!b)return;
+    const c=b.closest('.tp-col').dataset.c;
+    if(c==='h'){hh=b.dataset.t;mm=mm||'00';paint();onPick(`${hh}:${mm}`,false)}
+    else{mm=b.dataset.t;hh=hh||pad(new Date().getHours());onPick(`${hh}:${mm}`,true)}
+  });
+}
+infoEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.matches('.title-edit')){e.preventDefault();const ed=$('#ed');if(ed){ed.focus();const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}}
+});
+function validate(){
+  const btn=$('#saveBtn');if(!btn||!F)return;const k=S.view.kind;let msg='';
+  if(!(F.title||'').trim())msg='Add a title';
+  else if(k==='goal'&&(!String(F.target||'').trim()||!F.deadline))msg='Target and deadline are required';
+  else if(k==='event'&&(!F.date||!F.time))msg='Date and time are required';
+  else if(k==='note'&&$('#ed')&&isEmptyHTML($('#ed').innerHTML))msg='Write something in the note';
+  else if(k==='task'&&F.freq&&F.freq.type==='custom'&&!(F.freq.days||[]).length&&!(F.freq.dates||[]).length)msg='Choose at least one day for Repeats';
+  btn.disabled=!!msg;btn.dataset.tip=msg||(S.view.mode==='create'?'Create':'Save');
+}
+function cleanHTML(root){
+  const c=root.cloneNode(true);
+  c.querySelectorAll('td,th').forEach(td=>{td.classList.remove('sel');if(!td.className)td.removeAttribute('class')});
+  c.querySelectorAll('.cmp').forEach(s=>s.removeAttribute('title'));
+  const h=c.innerHTML.replace(/\u200B/g,'').trim();
+  return isEmptyHTML(h)?'':h;
+}
+function doSave(){
+  validate();const btn=$('#saveBtn');if(!btn||btn.disabled)return;
+  const v=S.view,ed=$('#ed');
+  if(ed)F.description=F.study?normStudy(cleanHTML(ed)):cleanHTML(ed);
+  F.title=F.title.trim();
+  if(v.kind==='note')F.updated=Date.now();
+  if(v.kind==='task')return saveTask(v);
+  const arr=D[COLL[v.kind]];
+  if(v.mode==='create')arr.push(F);else{const i=arr.findIndex(x=>x.id===F.id);if(i>=0)arr[i]=F}
+  save();const id=F.id;F=null;S.view={kind:v.kind,id,mode:'view'};
+  if(v.kind==='note'&&S.tab!=='notes'){S.tab='notes';renderToolbar()}
+  renderList();renderInfo();
+}
+function finishSave(kind,id){F=null;S.view={kind,id,mode:'view'};save();renderList();renderInfo()}
+function saveTask(v){
+  const d=S.date,pick=o=>Object.fromEntries(TFIELDS.map(k=>[k,o[k]]));
+  if(v.mode==='create'){Object.assign(F,{freq:F.freq||{type:'once'},from:d,until:null,skip:[],ovr:{},done:{}});D.tasks.push(F);return finishSave('task',F.id)}
+  const base=getItem('task',F.id);
+  Object.assign(base,pick(F),{freq:structuredClone(F.freq||{type:'once'})});
+  base.ovr={};
+  finishSave('task',base.id);
+}
+function deleteRoutine(id){
+  const d=S.date,base=getItem('task',id);
+  choiceBox('Delete task',`Remove "${viewOf('task',id).title}" from which days?`,[['one',`Only ${fmtLong(d)}`],['fwd',`${fmtLong(d)} and every time after`]],ch=>{
+    if(ch==='one'){base.skip.push(d);delete base.ovr[d]}
+    else if(d<=base.from)D.tasks.splice(D.tasks.indexOf(base),1);
+    else{base.until=addDays(d,-1);Object.keys(base.ovr).forEach(k=>{if(k>=d)delete base.ovr[k]})}
+    save();backToCal();
+  },'Delete');
+}
+function choiceBox(title,sub,opts,cb,danger){
+  const o=document.createElement('div');o.className='overlay';
+  o.innerHTML=`<div class="modal"><div class="m-t">${esc(title)}</div><div class="muted">${esc(sub)}</div><div class="choices">${opts.map(([v,l],i)=>`<button class="choice ${i===0?'first':''}" data-c="${v}">${esc(l)}</button>`).join('')}</div><div class="foot"><button class="btn ghost" data-c="">Cancel</button></div></div>`;
+  document.body.appendChild(o);
+  const close=()=>{o.remove();document.removeEventListener('keydown',k,true)};
+  const k=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
+  document.addEventListener('keydown',k,true);
+  o.addEventListener('click',e=>{if(e.target===o)return close();const b=e.target.closest('[data-c]');if(!b)return;close();if(b.dataset.c)cb(b.dataset.c)});
+  $('.choice',o).focus();
+}
+function confirmBox(msg,cb){
+  const o=document.createElement('div');o.className='overlay';
+  o.innerHTML=`<div class="modal"><div class="m-t">${esc(msg)}</div><div class="muted">This cannot be undone.</div><div class="foot"><button class="btn ghost" data-m="no">Cancel</button><button class="btn primary" data-m="yes">Delete</button></div></div>`;
+  document.body.appendChild(o);
+  const close=()=>{o.remove();document.removeEventListener('keydown',k,true)};
+  const k=e=>{if(e.key==='Escape'){e.stopPropagation();close()}};
+  document.addEventListener('keydown',k,true);
+  o.addEventListener('click',e=>{const m=e.target.closest('[data-m]');if(e.target===o||(m&&m.dataset.m==='no'))close();if(m&&m.dataset.m==='yes'){close();cb()}});
+  $('[data-m=yes]',o).focus();
+}
+
+/* ---------- editor ---------- */
+let LAST_RANGE=null,CUR_CELL=null,SEL=[],DRAG=null,CMP_RANGE=null,TUNDO=[];
+function edBarHTML(){
+  const B=(cmd,icon,tip)=>`<button class="eb" data-cmd="${cmd}" data-tip="${tip}">${ic(icon)}</button>`;
+  return `<div class="ed-bar">
+    <button class="dd" data-cmd="dd-block" data-dd="block"><span>Paragraph</span>${ic('chevD')}</button>
+    <button class="dd" data-cmd="dd-size" data-dd="size"><span>Size</span>${ic('chevD')}</button>
+    <span class="gap"></span>
+    ${B('bold','bold','Bold')}${B('italic','italic','Italic')}${B('underline','underline','Underline')}${B('strikeThrough','strike','Strikethrough')}${B('removeFormat','eraser','Clear formatting')}
+    <span class="gap"></span>
+    ${B('insertUnorderedList','list','Bulleted list')}${B('insertOrderedList','listOrdered','Numbered list')}${B('outdent','outdent','Decrease indent')}${B('indent','indent','Increase indent')}
+    <span class="gap"></span>
+    ${B('compound','trend','Compounding value')}${B('table','table','Insert table')}
+    <span class="tbl-tools" id="tblTools"><span class="gap"></span>${B('merge','merge','Merge cells')}${B('unmerge','unmerge','Separate cells')}${B('split','split','Split cell')}${B('addRow','rowAdd','Add row')}${B('addCol','colAdd','Add column')}${B('delRow','rowDel','Delete row')}${B('delCol','colDel','Delete column')}${B('delTable','trash','Delete table')}</span>
+  </div>`;
+}
+function setupEditor(o){
+  const ed=$('#ed');if(!ed)return;
+  LAST_RANGE=null;CUR_CELL=null;SEL=[];DRAG=null;TUNDO=[];
+  ed.innerHTML=o.description||'';hydrate(ed,ctxDate());caretRoom(ed);ed.classList.toggle('is-study',!!o.study);
+  ed.addEventListener('click',e=>{const c=e.target.closest('.cmp');if(c)openCompound(c,c)});
+  try{document.execCommand('defaultParagraphSeparator',false,'p')}catch(e){}
+  ed.addEventListener('input',validate);
+  ed.addEventListener('copy',e=>copyRich(e,false));
+  ed.addEventListener('cut',e=>copyRich(e,true));
+  ed.addEventListener('paste',e=>{
+    e.preventDefault();const cd=e.clipboardData||window.clipboardData;
+    const html=cd.getData('text/html');
+    if(html&&html.indexOf('data-factor')>=0){document.execCommand('insertHTML',false,safePaste(html));hydrate(ed,ctxDate());caretRoom(ed);validate();return}
+    document.execCommand('insertText',false,cd.getData('text/plain'));
+  });
+  ed.addEventListener('keydown',edKey);
+  ed.addEventListener('mousedown',edMouseDown);
+  ed.addEventListener('mouseover',edMouseOver);
+  const bar=$('.ed-bar');
+  bar.addEventListener('mousedown',e=>{if(e.target.closest('button'))e.preventDefault()});
+  bar.addEventListener('click',barClick);
+}
+function caretRoom(root){
+  if(!root)return;
+  root.querySelectorAll('.cmp').forEach(sp=>{const n=sp.nextSibling;if(!n||(n.nodeType===1&&n.tagName==='BR'))sp.after(document.createTextNode('​'))});
+}
+function copyRich(e,cut){
+  const s=getSelection();if(!s.rangeCount||s.isCollapsed)return;
+  const box=document.createElement('div');box.appendChild(s.getRangeAt(0).cloneContents());
+  if(!box.querySelector('.cmp'))return;
+  box.querySelectorAll('.cmp').forEach(x=>x.removeAttribute('title'));
+  e.clipboardData.setData('text/html',box.innerHTML);e.clipboardData.setData('text/plain',s.toString());e.preventDefault();
+  if(cut){document.execCommand('delete');validate()}
+}
+function safePaste(html){
+  const src=document.createElement('div');src.innerHTML=html;
+  const OK=new Set(['P','DIV','BR','B','STRONG','I','EM','U','S','STRIKE','H1','H2','H3','UL','OL','LI','BLOCKQUOTE','TABLE','TBODY','TR','TD','TH','SPAN']);
+  const walk=n=>{
+    if(n.nodeType===3)return document.createTextNode(n.data);
+    if(n.nodeType!==1)return document.createDocumentFragment();
+    const isCmp=n.tagName==='SPAN'&&n.classList.contains('cmp')&&n.dataset.factor;
+    let out;
+    if(isCmp){out=document.createElement('span');out.className='cmp';out.contentEditable='false';['base','factor','freq','start','every'].forEach(k=>{if(n.dataset[k]!=null)out.dataset[k]=n.dataset[k]});out.textContent=n.textContent;return out}
+    if(!OK.has(n.tagName)||n.tagName==='SPAN')out=document.createDocumentFragment();
+    else{out=document.createElement(n.tagName.toLowerCase());if(n.colSpan>1)out.colSpan=n.colSpan;if(n.rowSpan>1)out.rowSpan=n.rowSpan}
+    n.childNodes.forEach(c=>out.appendChild(walk(c)));return out;
+  };
+  const dst=document.createElement('div');src.childNodes.forEach(c=>dst.appendChild(walk(c)));return dst.innerHTML;
+}
+function restoreSel(){
+  const ed=$('#ed');if(!ed)return;ed.focus();
+  const s=getSelection();
+  if(LAST_RANGE&&ed.contains(LAST_RANGE.commonAncestorContainer)){s.removeAllRanges();s.addRange(LAST_RANGE)}
+  else{const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);s.removeAllRanges();s.addRange(r)}
+}
+function curCell(){const ed=$('#ed');return CUR_CELL&&ed&&ed.contains(CUR_CELL)?CUR_CELL:null}
+document.addEventListener('selectionchange',()=>{
+  const ed=$('#ed');if(!ed)return;const s=getSelection();if(!s.rangeCount)return;
+  const r=s.getRangeAt(0);if(!ed.contains(r.commonAncestorContainer))return;
+  LAST_RANGE=r.cloneRange();
+  let n=r.startContainer;n=n.nodeType===1?n:n.parentElement;
+  const td=n&&n.closest('td,th');CUR_CELL=td&&ed.contains(td)?td:null;
+  updateBar();
+});
+function updateBar(){
+  const bar=$('.ed-bar');if(!bar)return;
+  ['bold','italic','underline','strikeThrough','insertUnorderedList','insertOrderedList'].forEach(c=>{const b=bar.querySelector(`[data-cmd="${c}"]`);try{b.classList.toggle('is-on',document.queryCommandState(c))}catch(e){}});
+  let blk='';try{blk=String(document.queryCommandValue('formatBlock')).toLowerCase()}catch(e){}
+  const bv=['h1','h2','h3'].includes(blk)?blk:'p';$('[data-dd=block] span',bar).textContent=DD.block.find(o=>o[0]===bv)[1];bar.dataset.block=bv;
+  const tt=$('#tblTools'),inT=!!curCell()||SEL.length>0,ed=$('#ed');
+  tt.classList.toggle('on',inT||!!(ed&&ed.querySelector('table')));tt.classList.toggle('idle',!inT);
+  const mb=tt.querySelector('[data-cmd=merge]');if(mb)mb.classList.toggle('off',SEL.length<2);
+}
+const DD={
+  block:[['p','Paragraph'],['h1','Heading 1'],['h2','Heading 2'],['h3','Heading 3']],
+  size:[['13px','Small'],['15px','Normal'],['19px','Large'],['25px','Huge']]
+};
+function openDD(btn){
+  const k=btn.dataset.dd,cur=k==='block'?($('.ed-bar').dataset.block||'p'):null;
+  if(POP&&POP.anchor===btn)return closePop();
+  const el=openPop(btn,`<div class="menu">${DD[k].map(([v,l])=>`<button class="mi ${v===cur?'on':''} mi-${k}-${v.replace(/\W/g,'')}" data-v="${v}">${l}${v===cur?ic('check'):''}</button>`).join('')}</div>`);
+  el.classList.add('menu-pop');
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(!b)return;applyDD(k,b.dataset.v);closePop()});
+}
+function applyDD(k,v){
+  restoreSel();
+  if(k==='block')document.execCommand('formatBlock',false,`<${v}>`);
+  if(k==='size'){document.execCommand('styleWithCSS',false,false);document.execCommand('fontSize',false,'7');convertFonts(v)}
+  updateBar();validate();
+}
+function convertFonts(size){
+  $('#ed').querySelectorAll('font').forEach(f=>{const sp=document.createElement('span');
+    if(f.getAttribute('face'))sp.style.fontFamily=f.getAttribute('face');
+    if(f.getAttribute('size')==='7'&&size)sp.style.fontSize=size;
+    sp.innerHTML=f.innerHTML;f.replaceWith(sp)});
+}
+function barClick(e){
+  const b=e.target.closest('[data-cmd]');if(!b)return;const c=b.dataset.cmd;
+  if(c.startsWith('dd-'))return openDD(b);
+  if(['bold','italic','underline','strikeThrough','removeFormat','insertUnorderedList','insertOrderedList','outdent','indent'].includes(c)){
+    restoreSel();document.execCommand(c,false,null);updateBar();return}
+  if(c==='compound')return openCompound(b,null);
+  if(c==='table')return openTablePicker(b);
+  const cell=curCell()||SEL[0];if(!cell||!cell.isConnected)return;const table=cell.closest('table');
+  const ed=$('#ed'),before=ed.innerHTML.replace(/ class="sel"/g,'').replace(/ sel"/g,'"');
+  const G0=gridOf(table),pos=G0.info.get(cell)||{r:0,c:0,rs:1,cs:1};
+  let focus=cell;
+  switch(c){
+    case 'merge':if(SEL.length<2)return;focus=mergeCells(SEL)||cell;break;
+    case 'unmerge':unmerge(cell);break;
+    case 'split':splitCell(cell);break;
+    case 'addRow':addRow(cell);focus=cellAtRC(table,pos.r+pos.rs,pos.c);break;
+    case 'addCol':addCol(cell);focus=cellAtRC(table,pos.r,pos.c+pos.cs);break;
+    case 'delRow':delRow(cell);focus=table.isConnected?cellAtRC(table,Math.min(pos.r,table.rows.length-1),pos.c):null;break;
+    case 'delCol':delCol(cell);focus=table.isConnected?cellAtRC(table,pos.r,Math.max(0,pos.c-1)):null;break;
+    case 'delTable':table.remove();focus=null;break;
+    default:return;
+  }
+  TUNDO.push({before,after:null});
+  afterTableChange(table,focus);
+  TUNDO[TUNDO.length-1].after=ed.innerHTML;if(TUNDO.length>40)TUNDO.shift();
+}
+function cellAtRC(t,r,c){
+  if(!t.isConnected)return null;const G=gridOf(t);
+  r=Math.max(0,Math.min(r,G.grid.length-1));const row=G.grid[r]||[];
+  return row[Math.max(0,Math.min(c,row.length-1))]||t.querySelector('td,th');
+}
+function caretIn(td){
+  const ed=$('#ed');if(!ed||!td)return;ed.focus({preventScroll:true});
+  const r=document.createRange();r.selectNodeContents(td);r.collapse(false);
+  const s=getSelection();s.removeAllRanges();s.addRange(r);LAST_RANGE=r.cloneRange();CUR_CELL=td;
+}
+function afterTableChange(t,cell){
+  clearSel();
+  if(t.isConnected&&cell&&cell.isConnected)caretIn(cell);
+  else{CUR_CELL=null;const ed=$('#ed');if(ed){ed.focus({preventScroll:true});const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}}
+  updateBar();validate();
+}
+function edKey(e){
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&TUNDO.length){
+    const ed=$('#ed'),last=TUNDO[TUNDO.length-1];
+    if(last.after===ed.innerHTML){e.preventDefault();TUNDO.pop();clearSel();ed.innerHTML=last.before;hydrate(ed,ctxDate());caretRoom(ed);CUR_CELL=null;
+      const t=ed.querySelector('table');if(t)caretIn(t.querySelector('td,th'));updateBar();validate();return}
+    TUNDO=[];
+  }
+  if(e.key!=='Tab')return;e.preventDefault();
+  const n=getSelection().anchorNode,el=n&&(n.nodeType===1?n:n.parentElement);
+  const td=el&&el.closest('td,th');
+  if(el&&el.closest('li'))document.execCommand(e.shiftKey?'outdent':'indent');
+  else if(td){const cells=[...td.closest('table').querySelectorAll('td,th')];const nx=cells[cells.indexOf(td)+(e.shiftKey?-1:1)];
+    if(nx){const r=document.createRange();r.selectNodeContents(nx);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}}
+  else document.execCommand(e.shiftKey?'outdent':'indent');
+}
+function edMouseDown(e){
+  const td=e.target.closest('td,th');
+  clearSel();
+  if(!td)return;
+  DRAG={table:td.closest('table'),start:td};CUR_CELL=td;
+}
+function edMouseOver(e){
+  if(!DRAG)return;const td=e.target.closest('td,th');
+  if(!td||td.closest('table')!==DRAG.table)return;
+  if(td===DRAG.start&&!SEL.length)return;
+  selectRect(DRAG.table,DRAG.start,td);getSelection().removeAllRanges();CUR_CELL=DRAG.start;updateBar();
+}
+document.addEventListener('mouseup',()=>{DRAG=null});
+function clearSel(){SEL.forEach(x=>x.classList.remove('sel'));SEL=[];const ed=$('#ed');if(ed)ed.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'))}
+function expandRect(G,r0,c0,r1,c1){
+  let ch=true;
+  while(ch){ch=false;for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++){const x=G.grid[r]&&G.grid[r][c];if(!x)continue;const i=G.info.get(x);
+    if(i.r<r0){r0=i.r;ch=true}if(i.c<c0){c0=i.c;ch=true}if(i.r+i.rs-1>r1){r1=i.r+i.rs-1;ch=true}if(i.c+i.cs-1>c1){c1=i.c+i.cs-1;ch=true}}}
+  return {r0,c0,r1,c1};
+}
+function selectRect(t,a,b){
+  clearSel();const G=gridOf(t),A=G.info.get(a),B=G.info.get(b);if(!A||!B)return;
+  const R=expandRect(G,Math.min(A.r,B.r),Math.min(A.c,B.c),Math.max(A.r+A.rs-1,B.r+B.rs-1),Math.max(A.c+A.cs-1,B.c+B.cs-1));
+  const set=new Set();for(let r=R.r0;r<=R.r1;r++)for(let c=R.c0;c<=R.c1;c++){const x=G.grid[r]&&G.grid[r][c];if(x)set.add(x)}
+  SEL=[...set];SEL.forEach(x=>x.classList.add('sel'));updateBar();
+}
+const newCell=()=>{const td=document.createElement('td');td.innerHTML='<br>';return td};
+function insertAt(tr,c,G,el){for(const x of tr.cells){const i=G.info.get(x);if(i&&i.c>c){tr.insertBefore(el,x);return}}tr.appendChild(el)}
+function normalize(t){
+  let again=true;
+  while(again&&t.isConnected){again=false;const G=gridOf(t);
+    for(let r=G.rows.length-1;r>=0;r--){if(G.rows[r].cells.length===0){const seen=new Set();(G.grid[r]||[]).forEach(x=>{if(x&&!seen.has(x)){seen.add(x);if(x.rowSpan>1)x.rowSpan--}});G.rows[r].remove();again=true;break}}}
+  if(t.isConnected&&!t.querySelector('td,th'))t.remove();
+}
+function mergeCells(cells){
+  const t=cells[0].closest('table'),G=gridOf(t);let r0=1e9,c0=1e9,r1=-1,c1=-1;
+  cells.forEach(x=>{const i=G.info.get(x);r0=Math.min(r0,i.r);c0=Math.min(c0,i.c);r1=Math.max(r1,i.r+i.rs-1);c1=Math.max(c1,i.c+i.cs-1)});
+  ({r0,c0,r1,c1}=expandRect(G,r0,c0,r1,c1));
+  const target=G.grid[r0][c0],seen=new Set([target]);let extra='';
+  for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++){const x=G.grid[r]&&G.grid[r][c];if(x&&!seen.has(x)){seen.add(x);if(x.textContent.trim())extra+=' '+x.innerHTML;x.remove()}}
+  if(extra){if(!target.textContent.trim())target.innerHTML=extra.trim();else target.innerHTML+=extra}
+  target.rowSpan=r1-r0+1;target.colSpan=c1-c0+1;normalize(t);
+  return target;
+}
+function unmerge(cell){
+  const t=cell.closest('table'),G=gridOf(t),i=G.info.get(cell);if(i.rs===1&&i.cs===1)return;
+  cell.rowSpan=1;cell.colSpan=1;
+  for(let r=i.r;r<i.r+i.rs;r++){const tr=G.rows[r];if(!tr)continue;for(let c=i.c;c<i.c+i.cs;c++){if(r===i.r&&c===i.c)continue;insertAt(tr,c,G,newCell())}}
+}
+function splitCell(cell){
+  const G=gridOf(cell.closest('table')),i=G.info.get(cell);
+  if(i.rs>1||i.cs>1)return unmerge(cell);
+  const seen=new Set();
+  G.rows.forEach((tr,r)=>{const x=G.grid[r]&&G.grid[r][i.c];if(!x||seen.has(x))return;seen.add(x);if(x===cell)cell.after(newCell());else x.colSpan=(x.colSpan||1)+1});
+}
+function addRow(cell){
+  const G=gridOf(cell.closest('table')),i=G.info.get(cell),R=i.r+i.rs-1,tr=document.createElement('tr'),seen=new Set();
+  for(let c=0;c<G.ncols;c++){const x=G.grid[R]&&G.grid[R][c];if(!x){tr.appendChild(newCell());continue}const xi=G.info.get(x);
+    if(xi.r+xi.rs-1>R){if(!seen.has(x)){seen.add(x);x.rowSpan=xi.rs+1}}else tr.appendChild(newCell())}
+  G.rows[R].after(tr);
+}
+function addCol(cell){
+  const G=gridOf(cell.closest('table')),i=G.info.get(cell),C=i.c+i.cs-1,seen=new Set();
+  G.rows.forEach((tr,r)=>{const x=G.grid[r]&&G.grid[r][C];
+    if(!x){insertAt(tr,C+1,G,newCell());return}
+    const xi=G.info.get(x);
+    if(xi.c+xi.cs-1>C){if(!seen.has(x)){seen.add(x);x.colSpan=xi.cs+1}}else insertAt(tr,C,G,newCell())});
+}
+function delRow(cell){
+  const t=cell.closest('table'),G=gridOf(t),R=G.info.get(cell).r,tr=G.rows[R],seen=new Set();
+  for(let c=0;c<G.ncols;c++){const x=G.grid[R]&&G.grid[R][c];if(!x||seen.has(x))continue;seen.add(x);const xi=G.info.get(x);
+    if(xi.rs>1){x.rowSpan=xi.rs-1;if(xi.r===R&&G.rows[R+1])insertAt(G.rows[R+1],xi.c,G,x)}}
+  tr.remove();normalize(t);
+}
+function delCol(cell){
+  const t=cell.closest('table'),G=gridOf(t),C=G.info.get(cell).c,seen=new Set();
+  for(let r=0;r<G.grid.length;r++){const x=G.grid[r]&&G.grid[r][C];if(!x||seen.has(x))continue;seen.add(x);if(x.colSpan>1)x.colSpan--;else x.remove()}
+  normalize(t);
+}
+/* ---------- popovers ---------- */
+let POP=null;
+function openPop(anchor,html){
+  closePop();const el=document.createElement('div');el.className='pop';el.innerHTML=html;document.body.appendChild(el);
+  const r=anchor.getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight;
+  let x=Math.max(16,Math.min(r.left,innerWidth-w-16)),y=r.bottom+8;if(y+h>innerHeight-16)y=Math.max(16,r.top-h-8);
+  el.style.left=x+'px';el.style.top=y+'px';
+  el.addEventListener('mousedown',e=>{if(!e.target.closest('input'))e.preventDefault()});
+  POP={el,anchor};return el;
+}
+function fitPop(el){const r=el.getBoundingClientRect();if(r.bottom>innerHeight-12)el.style.top=Math.max(12,innerHeight-12-r.height)+'px';if(r.right>innerWidth-12)el.style.left=Math.max(12,innerWidth-12-r.width)+'px'}
+function freqPanel(st){
+  const f=st.f,cur=(FREQ_OPTS.find(o=>o[0]===f.type)||FREQ_OPTS[0])[1];
+  let h=`<div class="fsel-wrap fsel-top"><button class="fsel ${st.open?'open':''}" data-fq="toggle">${cur}${ic('chevD')}</button>${st.open?`<div class="fopts">${FREQ_OPTS.map(([v,l])=>`<button class="mi ${v===f.type?'on':''}" data-fq-opt="${v}">${l}${v===f.type?ic('check'):''}</button>`).join('')}</div>`:''}</div>`;
+  if(f.type==='custom')h+=`<div class="fp-l">Days of the week</div><div class="wbar">${WEEK.map(i=>`<button class="${(f.days||[]).includes(i)?'on':''}" data-fq-wd="${i}">${DAYS[i].slice(0,3)}</button>`).join('')}</div>
+    <div class="fp-l">Specific dates</div><div class="fcal">${dpGrid(st.view,s=>(f.dates||[]).includes(s))}</div>`;
+  const sum=freqText(f,st.from);
+  return h+(sum!==cur?`<div class="fsum">${esc(sum)}</div>`:'');
+}
+function freqClick(e,st){
+  const t=e.target;
+  if(t.closest('[data-fq=toggle]')){st.open=!st.open;return true}
+  const o=t.closest('[data-fq-opt]');
+  if(o){const v=o.dataset.fqOpt;if(st.f.type==='custom')st.keep={days:st.f.days,dates:st.f.dates};st.f=v==='custom'?{type:'custom',days:(st.keep&&st.keep.days)||[],dates:(st.keep&&st.keep.dates)||[]}:{type:v};st.open=false;return true}
+  const w=t.closest('[data-fq-wd]');
+  if(w){const s=new Set(st.f.days||[]),i=+w.dataset.fqWd;s.has(i)?s.delete(i):s.add(i);st.f.days=[...s];return true}
+  if(t.closest('.fcal')){
+    const nav=t.closest('[data-dp]');if(nav){st.view=addMonths(st.view,+nav.dataset.dp);return true}
+    const d=t.closest('[data-d]');if(d){const s=new Set(st.f.dates||[]),v=d.dataset.d;s.has(v)?s.delete(v):s.add(v);st.f.dates=[...s].sort();return true}
+  }
+  if(st.open&&!t.closest('.fopts')&&!t.closest('[data-c],[data-done]')){st.open=false;return true}
+  return false;
+}
+function openRepeat(anchor){
+  if(POP&&POP.anchor===anchor)return closePop();
+  const from=F.from||S.date,st={f:structuredClone(F.freq||{type:'once'}),open:false,view:monthStart(S.date),from};
+  const el=openPop(anchor,'');el.classList.add('fq-pop');
+  const paint=()=>{el.innerHTML=`<div class="pop-head"><div class="pop-t">Repeats</div><button class="icon-btn primary pop-ok" data-done aria-label="Done" data-tip="Done" data-tip-pos="left">${ic('check')}</button></div>${freqPanel(st)}`;fitPop(el)};
+  paint();
+  el.addEventListener('click',e=>{
+    if(e.target.closest('[data-done]'))return closePop();
+    if(freqClick(e,st)){F.freq=structuredClone(st.f);anchor.textContent=freqText(F.freq,from);validate();paint()}
+  });
+}
+function openCompound(anchor,span){
+  let base,factor='+ 1',start=todayISO(),fr={type:'daily'},every=(span&&span.dataset.every)||'1';
+  if(span){base=span.dataset.base;factor=span.dataset.factor||factor;start=span.dataset.start||start;try{fr=JSON.parse(span.dataset.freq)}catch(e){}}
+  else{
+    restoreSel();const s=getSelection(),txt=s.rangeCount?s.toString().trim():'';
+    if(!/^-?\d+(?:[.,]\d+)?$/.test(txt)){const el=openPop(anchor,`<div class="pop-t">Compounding value</div><div class="muted">Select a number in the description first, then press this button.</div>`);fitPop(el);return}
+    CMP_RANGE=s.getRangeAt(0).cloneRange();base=txt.replace(',','.');
+  }
+  const st={f:fr,open:false,view:monthStart(todayISO()),from:null};
+  const el=openPop(anchor,'');el.classList.add('fq-pop');
+  const preview=()=>{const ds={base,factor,freq:JSON.stringify(st.f),start,every};
+    return parseFactor(factor)&&!isNaN(parseFloat(base))?[['Today',0],['In 1 week',7],['In 1 month',30],['In 3 months',91]].map(([l,n])=>`<div><span>${l}</span><b>${fmtNum(compVal(ds,addDays(todayISO(),n)))}</b></div>`).join(''):'<div><span>Write a factor like + 2, - 1, x 1.5 or + 5%</span></div>'};
+  const paint=()=>{el.innerHTML=`<div class="pop-head"><div class="pop-t">Compounding value</div>${span?`<button class="icon-btn pop-ok" data-c="remove" aria-label="Remove" data-tip="Remove" data-tip-pos="left">${ic('trash')}</button>`:''}<button class="icon-btn primary pop-ok" data-c="apply" aria-label="${span?'Update':'Apply'}" data-tip="${span?'Update':'Apply'}" data-tip-pos="left">${ic('check')}</button></div>
+    <div class="fp-l">Starting value</div><input class="field" data-k="base" inputmode="decimal" value="${esc(base)}">
+    <div class="fp-l">Compounding factor</div><input class="field" data-k="factor" placeholder="+ 2" value="${esc(factor)}">
+    <div class="fp-l">Apply after every (repeats)</div><input class="field" data-k="every" inputmode="numeric" value="${esc(every)}">
+    ${freqPanel(st)}<div class="preview" id="cprev">${preview()}</div>`;fitPop(el)};
+  paint();
+  el.addEventListener('input',e=>{const k=e.target.dataset.k;if(k==='base')base=e.target.value;if(k==='factor')factor=e.target.value;if(k==='every')every=e.target.value;$('#cprev',el).innerHTML=preview()});
+  el.addEventListener('click',e=>{
+    if(freqClick(e,st))return paint();
+    const b=e.target.closest('[data-c]');if(!b)return;
+    if(b.dataset.c==='remove'){span.replaceWith(document.createTextNode(span.textContent));closePop();validate();return}
+    if(isNaN(parseFloat(base)))return $('[data-k=base]',el).focus();
+    if(!parseFactor(factor))return $('[data-k=factor]',el).focus();
+    if(st.f.type==='custom'&&!(st.f.days||[]).length&&!(st.f.dates||[]).length)return;
+    let sp=span;
+    if(!sp){sp=document.createElement('span');sp.className='cmp';CMP_RANGE.deleteContents();CMP_RANGE.insertNode(sp);const r=document.createRange();r.setStartAfter(sp);r.collapse(true);const s=getSelection();s.removeAllRanges();s.addRange(r)}
+    Object.assign(sp.dataset,{base:String(parseFloat(base)),factor:factor.trim(),freq:JSON.stringify(st.f),start});if((parseInt(every)||1)>1)sp.dataset.every=String(parseInt(every));else delete sp.dataset.every;sp.contentEditable='false';
+    const ed=$('#ed');hydrate(ed,ctxDate());caretRoom(ed);closePop();
+    if(!span){ed.focus();const nx=sp.nextSibling,r=document.createRange();if(nx&&nx.nodeType===3)r.setStart(nx,nx.data[0]==='\u200B'?1:0);else r.setStartAfter(sp);r.collapse(true);const s=getSelection();s.removeAllRanges();s.addRange(r);LAST_RANGE=r.cloneRange()}
+    validate();
+  });
+}
+const HAS_CRYPTO=!!(window.crypto&&crypto.subtle&&window.isSecureContext);
+const b64=buf=>{const u=new Uint8Array(buf);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function sha256hex(str){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function deriveKey(pw,salt,iter){const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function buildExport(pw){
+  const data=JSON.stringify(D);
+  const env={app:'Note',format:1,exportedAt:new Date().toISOString(),counts:countsOf(D),checksum:HAS_CRYPTO?'sha256:'+await sha256hex(data):'fnv:'+fnv(data),encrypted:!!pw};
+  if(pw){const iter=310000,salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await deriveKey(pw,salt,iter);
+    env.cipher={alg:'AES-256-GCM',kdf:'PBKDF2-SHA256',iterations:iter,salt:b64(salt),iv:b64(iv),data:b64(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(data)))};return JSON.stringify(env)}
+  env.data=D;return JSON.stringify(env,null,1);
+}
+function checkShape(d){
+  if(!d||typeof d!=='object'||!Array.isArray(d.tasks))throw new Error('The file is missing your tasks, so it was not loaded.');
+  for(const k of ['goals','events','notes'])if(d[k]!==undefined&&!Array.isArray(d[k]))throw new Error('Part of the file is damaged, so it was not loaded.');
+  for(const k of ['tasks','goals','events','notes'])for(const o of (d[k]||[]))if(!o||typeof o.id!=='string')throw new Error('Part of the file is damaged, so it was not loaded.');
+}
+async function readExport(text,pw){
+  let env;try{env=JSON.parse(text)}catch(e){throw new Error('That file is not a Note export.')}
+  if(env&&env.app==='Note'){
+    let json;
+    if(env.encrypted){
+      if(!pw)throw Object.assign(new Error(''),{needPw:true});
+      if(!HAS_CRYPTO)throw new Error('Protected files can only be opened on the installed app or a secure (https) page.');
+      try{const c=env.cipher,key=await deriveKey(pw,unb64(c.salt),c.iterations||310000);json=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(c.iv)},key,unb64(c.data)))}
+      catch(e){throw Object.assign(new Error('Wrong password, or the file is damaged.'),{needPw:true})}
+    }else json=JSON.stringify(env.data);
+    let verified=null;
+    if(env.checksum){const i=env.checksum.indexOf(':'),alg=env.checksum.slice(0,i),val=env.checksum.slice(i+1);
+      if(alg==='sha256'&&HAS_CRYPTO)verified=(await sha256hex(json))===val;else if(alg==='fnv')verified=fnv(json)===val}
+    if(verified===false)throw new Error('This file was changed or damaged after it was exported, so it was not loaded.');
+    const data=JSON.parse(json);checkShape(data);return {data,verified,exportedAt:env.exportedAt,encrypted:!!env.encrypted};
+  }
+  if(env&&Array.isArray(env.tasks)){checkShape(env);return {data:env,verified:null,exportedAt:null,encrypted:false,legacy:true}}
+  throw new Error('That file is not a Note export.');
+}
+async function offerFile(name,text){
+  let dl=null;try{if(window.claude&&typeof window.claude.use==='function')dl=await window.claude.use('downloads')}catch(x){}
+  if(dl){await dl.save({filename:name,data:text});return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+
+/* ---------- Your data screen ---------- */
+const whenTxt=t=>{if(!t)return 'Never';const x=new Date(t);return `${fmtShort(iso(x))} ${x.getFullYear()}, ${pad(x.getHours())}:${pad(x.getMinutes())}`};
+const countTxt=c=>[['tasks','task'],['goals','goal'],['events','event'],['notes','note']].map(([k,w])=>`${c[k]||0} ${w}${(c[k]||0)===1?'':'s'}`).join(' · ');
+function openData(){
+  if(isEditing())return;
+  S.imp=null;if(S.panel!=='info'){S.mfrom='list';parkInfo(false)}
+  S.view={kind:'data'};F=null;S.pending=null;renderList();renderInfo();setPanel('info');
+}
+function impHTML(){
+  const m=S.imp;
+  if(!m)return `<div class="dactions"><label class="btn ghost">Choose a file<input type="file" id="impfile" accept=".json,application/json" hidden></label></div>`;
+  let h=`<div class="dcard"><div class="drow"><span>File</span><b>${esc(m.name)}</b></div>`;
+  if(m.res)h+=`<div class="drow"><span>Exported</span><b>${m.res.exportedAt?whenTxt(Date.parse(m.res.exportedAt)):'Unknown'}</b></div><div class="drow"><span>Contains</span><b>${countTxt(countsOf(m.res.data))}</b></div><div class="drow"><span>Integrity</span><b>${m.res.verified?'Verified, unchanged since export':'Older backup format, not verified'}</b></div>`;
+  h+='</div>';
+  if(m.needPw&&!m.res)h+=`<label class="dfield"><span>This file is password protected</span><input type="password" id="imppw" placeholder="Password" autocomplete="current-password"></label>`;
+  if(m.err)h+=`<div class="dmsg err">${esc(m.err)}</div>`;
+  h+=`<div class="dactions">${m.res?`<button class="btn primary" data-d="replace">Replace my data</button>`:m.needPw?`<button class="btn primary" data-d="unlock">Unlock</button>`:''}<button class="btn ghost" data-d="cancel-imp">Cancel</button></div>`;
+  return h;
+}
+function dataViewHTML(){
+  const st=STORE.persisted===true?'Protected from automatic clean-up':STORE.persisted===false?'Not protected, export regularly':'Checking…';
+  return `<div class="item-head"><button class="icon-btn back-btn" data-act="back" data-tip="Back" aria-label="Back">${ic('chevL')}</button><div class="head-title"><div class="kind">Settings</div><h1>Your data</h1></div></div>
+  <section class="dsec"><div class="dsec-h">On this device</div><div class="dcard">
+    <div class="drow"><span>Stored</span><b>${countTxt(countsOf(D))}</b></div>
+    <div class="drow"><span>Last change</span><b>${whenTxt(D.meta&&D.meta.savedAt)}</b></div>
+    <div class="drow"><span>Copies</span><b>${STORE.idb&&STORE.ready?'Two copies, checked on every start':'One copy'}</b></div>
+    <div class="drow"><span>Storage</span><b>${st}</b></div>
+    <div class="drow"><span>Last export</span><b>${whenTxt(D.meta&&D.meta.lastBackup)}</b></div>
+  </div></section>
+  <section class="dsec"><div class="dsec-h">Export</div>
+    <p class="dtext">Save everything into one file. Open it with Import on your other device to continue with the same data.</p>
+    ${HAS_CRYPTO?`<label class="dfield"><span>Password (optional)</span><input type="password" id="expw" placeholder="Leave empty for no password" autocomplete="new-password"></label><p class="dtext small">With a password the file is encrypted. There is no way to open it if the password is lost.</p>`:''}
+    <div class="dactions"><button class="btn primary" data-d="export">Export data</button><button class="btn ghost" data-d="copy">Copy to clipboard</button></div>
+    <div class="dmsg" id="exmsg"></div></section>
+  <section class="dsec"><div class="dsec-h">Import</div>
+    <p class="dtext">Load a file exported from Note. Everything on this device is replaced, and a snapshot of it is kept first so you can go back.</p>
+    <div id="impbox">${impHTML()}</div></section>
+  <section class="dsec"><div class="dsec-h">Snapshots</div>
+    <p class="dtext">A copy of your data from each day of the last two weeks, plus one before every import or restore.</p>
+    <div id="snaps" class="dcard"><div class="drow"><span>Loading…</span></div></div></section>`;
+}
+async function loadSnaps(){
+  const box=$('#snaps');if(!box)return;
+  if(!STORE.ready){box.innerHTML='<div class="drow"><span>Snapshots are not available in this browser</span></div>';return}
+  try{
+    const all=(await IDB.all('snaps')).sort((a,b)=>b.savedAt-a.savedAt);
+    const lbl={daily:'Daily copy',import:'Before import',restore:'Before restore'};
+    box.innerHTML=all.length?all.map(s=>`<div class="drow"><span>${lbl[s.kind]||'Copy'}, ${whenTxt(s.savedAt)}<em>${countTxt(s.counts||{})}</em></span><button class="lnk" data-d="restore" data-id="${s.id}">Restore</button></div>`).join(''):'<div class="drow"><span>No snapshots yet</span></div>';
+  }catch(e){box.innerHTML='<div class="drow"><span>Snapshots could not be read</span></div>'}
+}
+const paintImp=()=>{const b=$('#impbox');if(b)b.innerHTML=impHTML();const pw=$('#imppw');if(pw)pw.focus()};
+async function tryImport(pw){
+  const m=S.imp;if(!m)return;m.err=null;
+  try{m.res=await readExport(m.text,pw);m.needPw=false}
+  catch(e){if(e.needPw){m.needPw=true;m.err=e.message||null}else m.err=e.message}
+  paintImp();
+}
+infoEl.addEventListener('change',e=>{
+  if(e.target.id!=='impfile')return;const f=e.target.files&&e.target.files[0];if(!f)return;
+  f.text().then(text=>{S.imp={name:f.name,text};tryImport(null)});
+});
+infoEl.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='imppw'){e.preventDefault();tryImport(e.target.value)}if(e.key==='Enter'&&e.target.id==='expw'){e.preventDefault();$('[data-d=export]').click()}});
+infoEl.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-d]');if(!b||S.view.kind!=='data')return;
+  const msg=t=>{const m=$('#exmsg');if(m)m.textContent=t};
+  const a=b.dataset.d;
+  if(a==='export'||a==='copy'){
+    const pw=($('#expw')||{}).value||'';b.disabled=true;
+    try{const text=await buildExport(pw);
+      if(a==='copy'){await navigator.clipboard.writeText(text);msg('Copied. Paste it into a file or note to keep it.')}
+      else{await offerFile(`note-${todayISO()}${pw?'-protected':''}.json`,text);msg(pw?'Encrypted file exported.':'File exported.')}
+      D.meta.lastBackup=Date.now();save();
+    }catch(err){msg(err&&err.code==='declined'?'Export cancelled.':a==='copy'?'Copying was blocked by the browser.':'The file could not be saved here.')}
+    b.disabled=false;
+  }
+  if(a==='cancel-imp'){S.imp=null;paintImp()}
+  if(a==='unlock')tryImport(($('#imppw')||{}).value||'');
+  if(a==='replace'&&S.imp&&S.imp.res){
+    const res=S.imp.res;
+    choiceBox('Replace your data',`Everything on this device will be replaced with the file's ${countTxt(countsOf(res.data))}. A snapshot of your current data is kept.`,[['yes','Replace my data']],async()=>{
+      try{if(STORE.ready)await addSnap('import',JSON.stringify(D))}catch(x){}
+      S.imp=null;useData(structuredClone(res.data));save();openData();
+    });
+  }
+  if(a==='restore'){
+    const s=await IDB.get('snaps',b.dataset.id).catch(()=>null);
+    if(!s||fnv(s.json)!==s.sum){b.textContent='Damaged';return}
+    choiceBox('Restore snapshot',`Go back to your data from ${whenTxt(s.savedAt)}? A snapshot of your current data is kept.`,[['yes','Restore']],async()=>{
+      try{await addSnap('restore',JSON.stringify(D))}catch(x){}
+      useData(JSON.parse(s.json));save();openData();
+    });
+  }
+});
+function openBackup(){openData()}
+function closePop(){if(POP){POP.el.remove();POP=null}}
+document.addEventListener('mousedown',e=>{if(POP&&!POP.el.contains(e.target)&&!POP.anchor.contains(e.target))closePop()},true);
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){if(POP)return closePop()}
+  const tg=e.target,typing=tg.closest&&tg.closest('input,textarea,select,[contenteditable="true"]');
+  if(!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!document.querySelector('.overlay'))handleKeys(e);
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'&&isEditing()){e.preventDefault();doSave()}
+});
+
+function openTablePicker(btn){
+  let cells='';for(let r=1;r<=6;r++)for(let c=1;c<=8;c++)cells+=`<i data-r="${r}" data-c="${c}"></i>`;
+  const el=openPop(btn,`<div class="pop-t">Insert table</div><div class="tgrid">${cells}</div><div class="muted tg-l">Choose a size</div>`);
+  el.style.width='auto';
+  el.addEventListener('mouseover',e=>{const i=e.target.closest('i[data-r]');if(!i)return;const R=+i.dataset.r,C=+i.dataset.c;
+    el.querySelectorAll('i').forEach(x=>x.classList.toggle('on',+x.dataset.r<=R&&+x.dataset.c<=C));
+    $('.tg-l',el).textContent=`${C} ${C===1?'column':'columns'}, ${R} ${R===1?'row':'rows'}`});
+  el.addEventListener('click',e=>{const i=e.target.closest('i[data-r]');if(i)insertTable(+i.dataset.r,+i.dataset.c)});
+}
+function insertTable(rows,cols){
+  restoreSel();const cell=curCell();
+  if(cell){const r=document.createRange();r.setStartAfter(cell.closest('table'));r.collapse(true);const s=getSelection();s.removeAllRanges();s.addRange(r)}
+  const html=`<table><tbody>${Array.from({length:rows},()=>`<tr>${'<td><br></td>'.repeat(cols)}</tr>`).join('')}</tbody></table><p><br></p>`;
+  document.execCommand('insertHTML',false,html);closePop();validate();
+}
+
+/* ---------- start ---------- */
+function handleKeys(e){
+  const k=e.key,v=S.view;
+  if((k===' '||k==='Enter')&&e.target.closest&&e.target.closest('button'))return;
+  if(k==='Escape'){if(isEditing())$('[data-act=cancel]',infoEl).click();else if(v.kind!=='calendar')backToCal();return}
+  if(k==='ArrowDown'||k==='ArrowUp'||k==='j'||k==='k'){
+    const rows=[...listEl.querySelectorAll('.row[data-id]:not(.is-draft)')];if(!rows.length||isEditing())return;
+    e.preventDefault();const i=rows.findIndex(r=>r.classList.contains('is-sel'));
+    const n=rows[Math.max(0,Math.min(rows.length-1,i<0?0:i+((k==='ArrowDown'||k==='j')?1:-1)))];
+    openItem(S.tab==='home'?'task':'note',n.dataset.id);$(`.row[data-id="${n.dataset.id}"]`,listEl)?.scrollIntoView({block:'nearest'});return}
+  if((k===' '||k==='x')&&v.kind==='task'&&v.mode==='view'){e.preventDefault();toggleTask(v.id);return}
+  if((k==='Enter'||k==='e')&&v.kind!=='calendar'&&v.mode==='view'){e.preventDefault();$('[data-act=edit]',infoEl).click();return}
+  if(k==='n'){e.preventDefault();$('[data-new=task]').click();return}
+  if(k==='t'){S.cal=monthStart(todayISO());setDate(todayISO(),true);return}
+}
+setInterval(()=>{if(S.tab==='home'&&S.date===todayISO()&&!S.pending)renderList()},60000);
+save();renderToolbar();renderList(true);renderInfo();
+storageBoot();
+if('serviceWorker' in navigator&&window.top===window&&(location.protocol==='https:'||location.hostname==='localhost'))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
